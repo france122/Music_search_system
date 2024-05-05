@@ -1,20 +1,20 @@
 import pymysql
 
 # 连接数据库，此前在数据库中创建数据库yuketang
-db = pymysql.connect(host="localhost", user="root", password="122", db="music")
+db = pymysql.connect(host="localhost", user="root", password="123456", db="music",charset='utf8')
 # 使用cursor()方法获取操作游标
 cursor = db.cursor()
 
 
-# 学生类
+# 歌曲类
 class Songs:
-    def __init__(self, SongID, SongName, Duration, Version, AlbumID, lyrics):
+    def __init__(self, SongID, SongName, Duration, Version, AlbumID, Lyrics):
         self.SongID=SongID
         self.SongName = SongName
         self.Duration = Duration
         self.Version = Version
         self.AlbumID = AlbumID
-        self.lyrics = lyrics
+        self.Lyrics = Lyrics
 
     # # 按歌曲编号查询歌曲的全部信息
     # def search_datas(self):
@@ -38,8 +38,8 @@ class Songs:
         # ping()使用该方法 ping(reconnect=True) ，那么可以在每次连接之前，会检查当前连接是否已关闭，如果连接关闭则会重新进行连接。
         db.ping(reconnect=True)
         # 插入sql语句
-        sql = "UPDATE students SET SongName='" + self.SongName + "',Duration='" + self.Duration + "',Version='" + self.Version + "', \
-                                                                                                            AlbumID='" + self.AlbumID + "',lyrics='" + self.lyrics + "' WHERE SongID='" + self.SongID + "'"
+        sql = "UPDATE songs SET SongName='" + self.SongName + "',Duration='" + self.Duration + "',Version='" + self.Version + "', \
+                                                                                                            AlbumID='" + self.AlbumID + "',lyrics='" + self.Lyrics + "' WHERE SongID='" + self.SongID + "'"
         # 执行sql语句
         cursor.execute(sql)
         db.commit()
@@ -52,7 +52,7 @@ class Songs:
         # 编写sql语句
         sql_0 = "INSERT INTO Songs(SongID, SongName, Duration, Version, AlbumID, lyrics) VALUES(%s,%s,%s,%s,%s,%s,%s)"
         sql = sql_0 % (repr(self.SongID), repr(self.SongName), repr(self.Duration), repr(self.Version), repr(self.AlbumID),
-                       repr(self.lyrics))
+                       repr(self.Lyrics))
         cursor.execute(sql)
         # 提交到数据库执行
         db.commit()
@@ -70,18 +70,22 @@ class Songs:
         # 关闭数据库
         db.close()
 
-
+#歌手类
 class artists:
     def __init__(self,ArtistID,ArtistName):
         self.ArtistID = ArtistID
         self.ArtistName = ArtistName
 
+#专辑类
 class albums:
     def __init__(self,AlbumID,AlbumName,ArtistID):
         self.AlbumID= AlbumID
         self.AlbumName = AlbumName
         self.ArtistID= ArtistID
 
+
+
+"""
     def search_course(self):
         # ping()使用该方法 ping(reconnect=True) ，那么可以在每次连接之前，会检查当前连接是否已关闭，如果连接关闭则会重新进行连接。
         db.ping(reconnect=True)
@@ -107,4 +111,4 @@ class albums:
         # 执行sql语句
         cursor.execute(sql)
         db.commit()
-        db.close()
+"""

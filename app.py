@@ -1,46 +1,53 @@
-import calendar
-from datetime import datetime
-from flask import Flask, render_template, redirect, request
-import musicdata as mud
-import functions as func
+from flask import Flask,render_template
+from flask import redirect
+from flask import url_for
+from flask import request
+from model.check_login import is_existed,exist_user,is_null
+from model.check_regist import add_user
 
-app = Flask(__name__, static_url_path="/")
-app.secret_key = 'ahdbahibaiuhjonbawiuh'
+app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return redirect(url_for('user_login'))
 
-# 设置默认界面
-@app.route("/")
-def default_page():
-    return redirect('/login')
-
-
-# 主界面接口
-@app.route('/index')
-def main_interface():
-    return render_template("index.html")
-
-
-# 添加歌曲信息
-@app.route('/add-songs-data', methods=['GET', 'POST'])
-def add_data():
-    if request.method == 'GET':
-        return render_template('add-songs-data.html')
-    if request.method == 'POST':
-        func.add_data()
-        return redirect('/songs-datas')
-
-# 登录接口
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == "GET":
-        return render_template("login.html")
-    if request.method == "POST":
-        res = func.login()
-        if res == 1:
-            return redirect('/index')
+@app.route('/user_login',methods=['GET','POST'])
+def user_login():
+    if request.method=='POST':  # 注册发送的请求为POST请求
+        username = request.form['username']
+        password = request.form['password']
+        if is_null(username,password):
+            login_massage = "温馨提示：账号和密码是必填"
+            return render_template('login.html', message=login_massage)
+        elif is_existed(username, password):
+            return render_template('index.html', username=username)
+        elif exist_user(username):
+            login_massage = "温馨提示：密码错误，请输入正确密码"
+            return render_template('login.html', message=login_massage)
         else:
-            return '账号不为admin,或密码错误！'
+            login_massage = "温馨提示：不存在该用户，请先注册"
+            return render_template('login.html', message=login_massage)
+    return render_template('login.html')
+
+@app.route("/regiser",methods=["GET", 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if is_null(username,password):
+            login_massage = "温馨提示：账号和密码是必填"
+            return render_template('register.html', message=login_massage)
+        elif exist_user(username):
+            login_massage = "温馨提示：用户已存在，请直接登录"
+            # return redirect(url_for('user_login'))
+            return render_template('register.html', message=login_massage)
+        else:
+            add_user(request.form['username'], request.form['password'] )
+            return render_template('index.html', username=username)
+    return render_template('register.html')
 
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    #server = pywsgi.WSGIServer(('127.0.0.1', 8000), app)
+    #server.serve_forever()
+    app.run(debug=True,host='0.0.0.0',port = 6688)
