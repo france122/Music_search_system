@@ -1,17 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"  type="text/css" href="/static/style.css">
+    <meta charset="UTF-8" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi">
     <title>歌词检索系统</title>
 </head>
-<body>
+
+<body >
     <div>
     <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
         <a href="{{ url_for('user_login') }}">退出</a>
         <br/>
     </div>
+    <div align="center" style="margin-top: 100px">
+        <div >
+            <form action="{{ url_for('search') }}" method="get" >
+                <p><input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_word"></p>
+                <button type="submit" ></button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
-

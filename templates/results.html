@@ -1,0 +1,46 @@
+<head>
+    <meta charset="UTF-8">
+    <title>检索详情</title>
+</head>
+<style type="text/css">
+    .bg{
+        background-image: url("../static/background.jpg");
+        background-repeat: no-repeat;
+        background-size:100% 100%;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    .wk{
+        border:2px solid #ec500b;
+        border-radius:5px;
+        background: aliceblue;
+        height:500px ;
+        width: 500px;
+        align-content: center;
+        margin: 0 auto;
+        margin-top: 60px;
+        background-color:rgba(0.1,0,0.1,0.2);
+
+    }
+    button{
+        background-color:#ec500b;
+        color:white;
+        width: 300px;
+        height: 47px;
+        border:0;
+        font-size: 16px;
+        border-radius: 30px;
+    }
+
+</style>
+<body>
+    <div>
+        <div>
+        {% for search_result in search_results  %}
+            <div>{{ search_result}}</div>
+        {% endfor %}
+        </div>
+        <div style="text-align: center;margin-top: 170px" ><a href="search.html">确定并返回</a></div>
+    </div>
+</body>
+</html>

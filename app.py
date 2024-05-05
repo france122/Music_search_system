@@ -2,8 +2,13 @@ from flask import Flask,render_template
 from flask import redirect
 from flask import url_for
 from flask import request
+
+import model.search
 from model.check_login import is_existed,exist_user,is_null
 from model.check_regist import add_user
+from model.search import search_results
+from model.sql_query import sql_query
+from musicdata import db
 
 app = Flask(__name__)
 
@@ -22,7 +27,7 @@ def user_login():
         elif is_existed(username, password):
             return render_template('index.html', username=username)
         elif exist_user(username):
-            login_massage = "温馨提示：密码错误，请输入正确密码"
+            login_massage = "温馨提示：密码错、。误，请输入正确密码"
             return render_template('login.html', message=login_massage)
         else:
             login_massage = "温馨提示：不存在该用户，请先注册"
@@ -45,6 +50,18 @@ def register():
             add_user(request.form['username'], request.form['password'] )
             return render_template('index.html', username=username)
     return render_template('register.html')
+
+
+@app.route("/index", methods=["POST", "GET"])
+def search():
+    if request.args.get('key_word', None) == None:  # 如果没有检测到关键字提交，就停留在检索页面
+        print("未传参")
+        return render_template("search.html")  # 映射到检索页面
+    else:  # 如果有关键词提交
+        key_words = request.args.get('key_word')  # 将传来的关键词赋给key_word
+        search_results = model.search.search_results(key_words)  # 在表里查询符合条件的条目赋给key_words
+
+        return render_template("results.html", search_results = search_results)  # 映射到结果的页面，并将查询到的条目传过去
 
 
 if __name__ == '__main__':

@@ -1,22 +1,5 @@
 import musicdata as mud
 from flask import request, session
-# 登录功能
-def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    if username != 'admin':
-        return '账号错误，请重新输入！'
-    else:
-        if password == '123456':
-            session['username'] = username
-            return 1
-        else:
-            return "密码错误，请重新登录"
-
-
-# 按SongID查找歌曲的全部信息
-# def search_songid_data(SongID):
-#     return mud.Songs(SongID,'','','', '','').search_datas()
 
 
 # 修改歌曲信息
