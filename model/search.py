@@ -12,11 +12,11 @@ def search_results(keyword):
     #  search_result.extend(sql_query(cut_keyword))
     # 记录搜到了多少数据
     #search_result = set(search_result)
+
     search_result.extend(sql_query(keyword))
     return search_result
 
 def sql_query(keyword):
-
     sql= "select SongID,SongName,Duration,Version,AlbumID from songs where SongName like '%%%%%s%%%%'" % keyword
     cur.execute(sql)
     result=cur.fetchall()

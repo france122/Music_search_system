@@ -60,11 +60,16 @@
     }
 </style>
 <body class="bg">
+    <div>
+    <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
+        <a href="{{ url_for('user_login') }}">退出</a>
+        <br/>
+    </div>
 <div align="center"style="margin-top: 100px">
     <div class="search bar">
         <form action="{{ url_for('search') }}" method="get" >
-            <p><input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_word"></p>
-            <button type="submit" ></button>
+            <p><input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word"></p>
+            <button type="submit" style="width: 50px; height=25px" ></button>
         </form>
     </div>
 </div>
