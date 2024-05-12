@@ -1,77 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi">
+    <meta charset="UTF-8">
     <title>歌词检索系统</title>
 </head>
 <style type="text/css">
-    .bg{
+    .bg {
         background-image: url("../static/background.jpg");
         background-repeat: no-repeat;
-        background-size:100% 100%;
+        background-size: 100% 100%;
         background-position: center;
         background-attachment: fixed;
     }
 
     * {
-        box-sizing:border-box;
+        box-sizing: border-box;
     }
-    div.search {
-        padding:10px 0;
+
+    .form-container {
+        margin: 20px auto; /* 增加每个表单容器之间的间距 */
+        width: 600px;
     }
+
     form {
-        position:relative;
-        width:600px;
-        margin:0 auto;
+        position: relative;
+        width: 100%;
     }
-    input,button {
-        border:none;
-        outline:none;
+
+    input, button {
+        border: none;
+        outline: none;
     }
-    input {
-        width:100%;
-        height:42px;
-        padding-left:13px;
-    }
+
     button {
-        height:42px;
-        width:42px;
-        cursor:pointer;
-        position:absolute;
+        height: 42px;
+        width: 100px;
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        background-color: #ec500b;
+        color: #ffffff;
+        border-radius: 0 5px 5px 0;
+        font-size: 16px;
+        border: 2px solid #d44907;
     }
+
+    input {
+        width: calc(100% - 102px);
+        height: 42px;
+        padding-left: 13px;
+        border: 2px solid #ec500b;
+        border-radius: 5px 0 0 5px;
+        background: transparent;
+    }
+
     .bar input {
-        border:2px solid #ec500b;
-        border-radius:5px;
-        background:transparent;
-        top:0;
-        right:0;
+        border: 2px solid #ec500b;
+        border-radius: 5px;
+        background: transparent;
     }
+
     .bar button {
         background: #ec500b;
-        border-radius:0 5px 5px 0;
-        width:90px;
-        top:0;
-        right:0;
+        border-radius: 0 5px 5px 0;
+        width: 90px;
     }
+
     .bar button:before {
-        content:"检索";
-        font-size:13px;
-        color:#F9F0DA;
+        content: "检索";
+        font-size: 13px;
+        color: #F9F0DA;
     }
 </style>
 <body class="bg">
     <div>
-    <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
+        <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
         <a href="{{ url_for('user_login') }}">退出</a>
         <br/>
     </div>
-<div align="center"style="margin-top: 100px">
-    <div class="search bar">
-        <form action="{{ url_for('search') }}" method="get" >
-            <p><input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word"></p>
-            <button type="submit" style="width: 50px; height=25px" ></button>
+
+    <div class="form-container">
+        <!-- 歌词查询表单 -->
+        <form action="{{ url_for('lyrics_search') }}" method="get">
+            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word">
+            <button type="submit">搜歌词</button>
         </form>
     </div>
-</div>
+
+    <div class="form-container">
+        <!-- 综合搜索表单 -->
+        <form action="{{ url_for('search') }}" method="get">
+            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌手" name="key_artist">
+            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_song">
+            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的专辑" name="key_album">
+            <select name="key_version" style="font-size: 20px; width: 180px; height: 30px;">
+                <option value="" disabled selected>版本</option>
+                <option value="Live">Live</option>
+                <option value="DJ">DJ</option>
+                <option value="广场舞版">广场舞版</option>
+                <option value="普通话版">普通话版</option>
+            </select>
+            <button type="submit">综合搜索</button>
+        </form>
+    </div>
 </body>
 </html>
