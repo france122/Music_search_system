@@ -2,7 +2,7 @@ import pymysql
 
 # 连接数据库，此前在数据库中创建数据库yuketang
 cursorclass=pymysql.cursors.DictCursor
-db = pymysql.connect(host="localhost", user="root", password="123456", db="music",charset='utf8')
+db = pymysql.connect(host="localhost", user="root", password="122", db="music",charset='utf8')
 # 使用cursor()方法获取操作游标
 cursor = db.cursor()
 

@@ -80,7 +80,6 @@ def search():
         search_params['album'] = request.args.get('key_album').strip()
     if request.args.get('key_version'):
         search_params['version'] = request.args.get('key_version').strip()
-
     if not search_params:
         return render_template("search.html", error="请至少填写一个搜索条件。")
 
