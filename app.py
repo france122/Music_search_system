@@ -12,6 +12,7 @@ from model.search import artistsearch_results
 from model.search import sql_artistquery
 from model.search import albumsearch_results
 from model.search import sql_albumquery
+from model.whoosh_test import whoosh_search,whoosh_index
 from musicdata import db
 from model.Jieba_query import inverted_index
 app = Flask(__name__)
@@ -63,8 +64,10 @@ def lyrics_search():
     else:  # 如果有关键词提交
         key_words = request.args.get('key_word')  # 将传来的关键词赋给key_word
         keywords = key_words.split()
-        search_results = model.Jieba_query.show_results(keywords, inverted_index)  # 在表里查询符合条件的条目赋给key_words
-        return render_template("results.html", search_results=search_results)  # 映射到结果的页面，并将查询到的条目传过去
+        search_results1 = model.Jieba_query.show_results(keywords, inverted_index)  # 在表里查询符合条件的条目赋给key_words
+        whoosh_index()
+        search_results2 = whoosh_search(keywords)
+        return render_template("results.html", search_results1=search_results1,search_results2=search_results2)  # 映射到结果的页面，并将查询到的条目传过去
 
 @app.route("/search", methods=["GET"])
 def search():

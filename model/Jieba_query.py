@@ -22,7 +22,6 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
 
         # 使用jieba进行分词
         seg_list = jieba.lcut_for_search(lyrics)
-
         # 遍历分词结果，建立倒排索引并计数
         for word in seg_list:
             if len(word) > 1:  # 过滤掉单个字符的词（可选）
