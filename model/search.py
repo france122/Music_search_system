@@ -30,7 +30,7 @@ def artistsearch_results(keyartist):
 def sql_artistquery(key_artist):
     # 参数化的 SQL 查询，使用 JOIN 来从 performances 和 songs 表中获取相关的歌曲信息
     sql = """
-    SELECT s.SongID, s.SongName, s.Duration, s.Version, s.AlbumID
+    SELECT s.SongID
     FROM artists a
     JOIN performances p ON a.ArtistID = p.ArtistID
     JOIN songs s ON p.SongID = s.SongID
@@ -50,7 +50,7 @@ def albumsearch_results(keyalbum):
 def sql_albumquery(key_album):
     # 参数化的 SQL 查询，使用 JOIN 来从 albums 和 songs 表中获取相关的歌曲信息
     sql = """
-    SELECT s.SongID, s.SongName, s.Duration, s.Version, s.AlbumID
+    SELECT s.SongID
     FROM albums a
     JOIN songs s ON a.AlbumID = s.AlbumID
     WHERE a.AlbumName LIKE %s
@@ -70,7 +70,7 @@ def versionsearch_results(key_version):
 def sql_versionquery(key_version):
     # 参数化的 SQL 查询，从 songs 表中获取特定版本的歌曲信息
     sql = """
-    SELECT SongID, SongName, Duration, Version, AlbumID
+    SELECT SongID
     FROM songs
     WHERE Version LIKE %s
     """
@@ -78,5 +78,6 @@ def sql_versionquery(key_version):
     cur.execute(sql, ('%' + key_version + '%',))
     result = cur.fetchall()
     return result
+
 
 
