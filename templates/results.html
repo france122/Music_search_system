@@ -36,11 +36,12 @@
 <body>
     <div>
         <div>
+            <p>基于TF-IDF的检索结果</p>
         {% for search_result in search_results1  %}
             <div>{{ search_result}}</div>
         {% endfor %}
         </div>
-        <p>我是一条分割线</p>
+            <p>基于whoosh的检索结果</p>
         <div>
         {% for search_result in search_results2  %}
             <div>{{ search_result}}</div>
