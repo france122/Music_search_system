@@ -79,22 +79,16 @@
         <br/>
     </div>
 
-    <div class="form-container">
-        <!-- 歌词查询表单 -->
-        <form action="{{ url_for('lyrics_search') }}" method="get">
-            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word">
-            <button type="submit">搜歌词</button>
-        </form>
-    </div>
 
     <div class="form-container">
         <!-- 综合搜索表单 -->
         <form action="{{ url_for('search') }}" method="get">
+            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word">
             <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌手" name="key_artist">
             <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_song">
             <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的专辑" name="key_album">
             <select name="key_version" style="font-size: 20px; width: 180px; height: 30px;">
-                <option value="">所有版本</option>
+                <option value="">不限版本</option>
                 <option value="Live">Live</option>
                 <option value="DJ">DJ</option>
                 <option value="广场舞版">广场舞版</option>
