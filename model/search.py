@@ -2,6 +2,58 @@ import jieba
 from musicdata import db
 cur = db.cursor()
 
+
+# 获取详细的歌曲信息
+def get_song_details(song_ids):
+    if not song_ids:
+        return []
+
+    format_strings = ','.join(['%s'] * len(song_ids))
+
+    # 获取歌曲的基本信息
+    sql = f"""
+    SELECT s.SongID, s.SongName, s.Version, s.AlbumID, a.AlbumName
+    FROM songs s
+    JOIN albums a ON s.AlbumID = a.AlbumID
+    WHERE s.SongID IN ({format_strings})
+    """
+    cur.execute(sql, tuple(song_ids))
+    songs = cur.fetchall()
+
+    # 获取歌曲的艺术家信息
+    sql = f"""
+    SELECT p.SongID, ar.ArtistName
+    FROM performances p
+    JOIN artists ar ON p.ArtistID = ar.ArtistID
+    WHERE p.SongID IN ({format_strings})
+    """
+    cur.execute(sql, tuple(song_ids))
+    artists = cur.fetchall()
+
+    # 构建一个字典以便快速查找每首歌的艺术家
+    artist_dict = {}
+    for song_id, artist_name in artists:
+        if song_id in artist_dict:
+            artist_dict[song_id].append(artist_name)
+        else:
+            artist_dict[song_id] = [artist_name]
+
+    # 将艺术家信息添加到歌曲信息中
+    detailed_results = []
+    for song in songs:
+        song_id, song_name, version, album_id, album_name = song
+        artist_names = artist_dict.get(song_id, [])
+        detailed_results.append({
+            'SongID': song_id,
+            'SongName': song_name,
+            'Version': version,
+            'AlbumName': album_name,
+            'Artists': artist_names
+        })
+
+    return detailed_results
+
+
 #歌名
 def songsearch_results(keysong):
     search_result = []
@@ -79,5 +131,56 @@ def sql_versionquery(key_version):
     result = cur.fetchall()
     return result
 
+#获取单个歌曲详情
+def get_song_detail_by_id(song_id):
+    sql = """
+    SELECT s.SongID, s.SongName, s.Version, a.AlbumName, s.Lyrics
+    FROM songs s
+    JOIN albums a ON s.AlbumID = a.AlbumID
+    WHERE s.SongID = %s
+    """
+    cur.execute(sql, (song_id,))
+    song = cur.fetchone()
+
+    if not song:
+        return None
+
+    # 移除歌词前面的空行
+    lyrics = song[4]
+    if lyrics:
+        lyrics = '\n'.join([line for line in lyrics.splitlines() if line.strip() != ''])
+
+    song_detail = {
+        'SongID': song[0],
+        'SongName': song[1],
+        'Version': song[2] if song[2] else "暂无",
+        'AlbumName': song[3],
+        'Lyrics': lyrics,
+        'Artists': []
+    }
+
+    # 获取艺术家信息
+    sql = """
+    SELECT ar.ArtistName
+    FROM performances p
+    JOIN artists ar ON p.ArtistID = ar.ArtistID
+    WHERE p.SongID = %s
+    """
+    cur.execute(sql, (song_id,))
+    artists = cur.fetchall()
+
+    for artist in artists:
+        song_detail['Artists'].append(artist[0])
+
+    return song_detail
 
 
+def get_artist_biography(artist_name):
+    sql = """
+    SELECT Biography
+    FROM artists
+    WHERE ArtistName = %s
+    """
+    cur.execute(sql, (artist_name,))
+    artist = cur.fetchone()
+    return artist[0] if artist else "暂无简介"
