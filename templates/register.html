@@ -3,23 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"  type="text/css" href="/static/style.css">
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            width: 400px;
+            padding: 40px;
+            background-color: #FFA550;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #5cb85c;
+        }
+
+        .button-group {
+            text-align: center;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-group button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
     <title>注册</title>
 </head>
 <body>
-    <div>
-    <h1>用户注册</h1>
+    <div class="login-container">
+    <h2>用户注册</h2>
     <form method="POST">
-        <input type="text" name="username" placeholder="请输入用户名" />
-        <br/>
+        <div class="form-group">
+        <label for="username">用户名:</label>
+            <input type="text" name="username" placeholder="请输入用户名" /></div>
+        <div class="form-group">
+                <label for="password">密码:</label>
         <input type="password" name="password" placeholder="请输入密码（小于12位）" />
-        <br/>
+        </div>
         <!--jinja2的函数-->
         {% if message %} {{message}} {% endif %}
-        <br/>
+         <div class="button-group">
         <input type="submit" value="注册" />
         <input type="reset" value="重置" />
-        <a href="{{ url_for('user_login') }}">登录</a>
+             <a href="{{ url_for('user_login') }}">登录</a></div>
     </form>
     </div>
 </body>

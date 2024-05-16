@@ -8,7 +8,7 @@ import jieba
 from topic_classification import tfidf_matrix,vectorizer,df
 
 # 使用LDA模型
-n_topics = 3  # 假设你想要识别5个主题
+n_topics = 5  # 假设你想要识别5个主题
 lda_model = LatentDirichletAllocation(n_components=n_topics,
                                       random_state=0)
 lda_output = lda_model.fit_transform(tfidf_matrix)
