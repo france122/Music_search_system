@@ -65,32 +65,34 @@
             text-decoration: none;
             font-size: 18px;
         }
-    </style>
-    <script>
-        function addLyricInput() {
-            var container = document.getElementById('lyric-inputs');
-            var inputCount = container.getElementsByTagName('input').length;
-
-            var newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.name = 'key_word';
-            newInput.placeholder = '请输入您想要查询的歌词';
-            newInput.style.fontSize = '20px';
-            newInput.style.marginBottom = '10px';
-
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.className = 'remove-lyric-button';
-            removeButton.innerText = '删除';
-            removeButton.onclick = function() {
-                container.removeChild(newInput);
-                container.removeChild(removeButton);
-            };
-
-            container.appendChild(newInput);
-            container.appendChild(removeButton);
+            <style>
+        .search-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
-    </script>
+
+        .field-select,
+        .input-field,
+        .remove-button {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .remove-button {
+            background-color: #ec500b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .remove-button:hover {
+            background-color: #d32f2f;
+        }
+
+    </style>
+
 </head>
 <body class="bg">
     <div>
@@ -154,6 +156,7 @@
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.textContent = '删除';
+        removeButton.className = 'remove-button';
         removeButton.onclick = function() { removeSearchField(this) };
 
         searchFieldDiv.appendChild(removeButton);
@@ -171,7 +174,7 @@
 
         // 移除旧的输入框或选择框
         const oldInput = selectElement.nextElementSibling;
-        if (oldInput) {
+        if (oldInput && oldInput.tagName !== 'BUTTON') {
             oldInput.remove();
         }
 
@@ -183,7 +186,7 @@
         if (fieldType === 'key_version') {
             inputField = document.createElement('select');
             inputField.name = fieldType;
-            inputField.style.fontSize = '20px';
+            inputField.className = 'input-field';
 
             const versionOptions = [
                 { value: '', text: '不限版本' },
@@ -202,7 +205,7 @@
         } else {
             inputField = document.createElement('input');
             inputField.type = 'text';
-            inputField.style.fontSize = '20px';
+            inputField.className = 'input-field';
             inputField.name = fieldType;
 
             switch (fieldType) {
@@ -224,7 +227,8 @@
             }
         }
 
-        parent.appendChild(inputField);
+        const removeButton = parent.querySelector('.remove-button');
+        parent.insertBefore(inputField, removeButton);
     }
 </script>
 
