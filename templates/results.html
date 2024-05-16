@@ -1,51 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>检索详情</title>
+    <title>检索结果</title>
+    <style type="text/css">
+        .bg {
+            background-image: url("../static/background.jpg");
+            background-repeat: no-repeat;
+            background-size:100% 100%;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .wk {
+            border:2px solid #ec500b;
+            border-radius:5px;
+            background: aliceblue;
+            height:500px;
+            width: 500px;
+            align-content: center;
+            margin: 0 auto;
+            margin-top: 60px;
+            background-color:rgba(0.1,0,0.1,0.2);
+        }
+        button {
+            background-color:#ec500b;
+            color:white;
+            width: 300px;
+            height: 47px;
+            border:0;
+            font-size: 16px;
+            border-radius: 30px;
+        }
+        .artist-biography {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+    </style>
 </head>
-<style type="text/css">
-    .bg{
-        background-image: url("../static/background.jpg");
-        background-repeat: no-repeat;
-        background-size:100% 100%;
-        background-position: center;
-        background-attachment: fixed;
-    }
-    .wk{
-        border:2px solid #ec500b;
-        border-radius:5px;
-        background: aliceblue;
-        height:500px ;
-        width: 500px;
-        align-content: center;
-        margin: 0 auto;
-        margin-top: 60px;
-        background-color:rgba(0.1,0,0.1,0.2);
-
-    }
-    button{
-        background-color:#ec500b;
-        color:white;
-        width: 300px;
-        height: 47px;
-        border:0;
-        font-size: 16px;
-        border-radius: 30px;
-    }
-
-</style>
-<body>
+<body class="bg">
     <div>
+        <h1>检索结果</h1>
         <div>
-            <p>基于TF-IDF的检索结果</p>
-        {% for search_result in search_results1  %}
-            <div>{{ search_result}}</div>
-        {% endfor %}
+            {% if artist_biography %}
+                <div class="artist-biography">
+                    <h2>歌手简介</h2>
+                    <p>{{ artist_biography }}</p>
+                </div>
+            {% endif %}
+            {% for search_result in search_results %}
+                <div>
+                    <a href="{{ url_for('song_detail', song_id=search_result['SongID']) }}">
+                        {{ search_result['SongName'] }} - {{ search_result['Version'] }} - {{ search_result['AlbumName'] }} - {{ search_result['Artists']|join(', ') }}
+                    </a>
+                </div>
+            {% endfor %}
         </div>
-            <p>基于whoosh的检索结果</p>
-        <div>
-        {% for search_result in search_results2  %}
-            <div>{{ search_result}}</div>
-        {% endfor %}
+        <div style="text-align: center;margin-top: 170px">
+            <a href="{{ url_for('search') }}">返回搜索页面</a>
         </div>
     </div>
 </body>

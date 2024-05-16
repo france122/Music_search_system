@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>歌曲详情</title>
+    <style type="text/css">
+        .bg {
+            background-image: url("../static/background.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        .song-details {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .lyrics {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            overflow-y: auto;
+            max-height: 400px; /* 限制歌词显示区域的高度 */
+        }
+        .lyrics pre {
+            white-space: pre-wrap; /* 保持换行符 */
+            word-wrap: break-word; /* 自动换行 */
+            font-family: Arial, sans-serif;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #ec500b;
+            text-decoration: none;
+        }
+        .cover {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .cover img {
+            max-width: 300px; /* 调整图片的最大宽度 */
+            max-height: 300px; /* 调整图片的最大高度 */
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="bg">
+    <div class="container">
+        <h1>歌曲详情</h1>
+        <div class="song-details">
+            {% if song_detail %}
+                <div class="cover">
+                    <img src="{{ url_for('static', filename='source/jpg/' + song_detail['SongID'] + '.jpg') }}" alt="专辑封面">
+                </div>
+                <p>歌曲名: {{ song_detail['SongName'] }}</p>
+                <p>版本: {{ song_detail['Version'] }}</p>
+                <p>专辑: {{ song_detail['AlbumName'] }}</p>
+                <p>歌手: {{ song_detail['Artists']|join(', ') }}</p>
+                <div class="lyrics">
+                    <p>歌词:</p>
+                    <pre>{{ song_detail['Lyrics'] }}</pre>
+                </div>
+                <audio class="audio-player" controls>
+                    <source src="{{ url_for('static', filename='source/mp3/' + song_detail['SongID'] + '.mp3') }}" type="audio/mpeg">
+                    您的浏览器不支持音频播放。
+                </audio>
+            {% else %}
+                <p>未找到该歌曲的详细信息。</p>
+            {% endif %}
+        </div>
+        <a class="back-link" href="{{ url_for('search') }}">返回搜索页面</a>
+    </div>
+</body>
+</html>
