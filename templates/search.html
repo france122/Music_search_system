@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>歌词检索系统</title>
@@ -11,21 +12,27 @@
             background-position: center;
             background-attachment: fixed;
         }
+
         * {
             box-sizing: border-box;
         }
+
         .form-container {
             margin: 20px auto;
             width: 600px;
         }
+
         form {
             position: relative;
             width: 100%;
         }
-        input, button {
+
+        input,
+        button {
             border: none;
             outline: none;
         }
+
         button {
             height: 42px;
             cursor: pointer;
@@ -35,6 +42,7 @@
             border: 2px solid #d44907;
             margin-top: 10px;
         }
+
         input {
             width: calc(100% - 110px);
             height: 42px;
@@ -44,20 +52,28 @@
             background: transparent;
             margin-bottom: 10px;
         }
+
         .add-lyric-button {
             width: 100%;
-            background-color: #28a745;
-            border: 2px solid #218838;
+            background-color: #ec500b;
+            ;
+            border: 2px solid #ec500b;
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
+
         .remove-lyric-button {
             width: 100px;
-            background-color: #dc3545;
-            border: 2px solid #c82333;
+            margin-left: 5px;
+            background-color: #ec500b;
+            border: 2px solid#ec500b;
         }
+
         .artist-links {
             margin-top: 20px;
             text-align: center;
         }
+
         .artist-links a {
             margin: 5px;
             display: inline-block;
@@ -70,7 +86,6 @@
         function addLyricInput() {
             var container = document.getElementById('lyric-inputs');
             var inputCount = container.getElementsByTagName('input').length;
-
             var newInput = document.createElement('input');
             newInput.type = 'text';
             newInput.name = 'key_word';
@@ -82,7 +97,7 @@
             removeButton.type = 'button';
             removeButton.className = 'remove-lyric-button';
             removeButton.innerText = '删除';
-            removeButton.onclick = function() {
+            removeButton.onclick = function () {
                 container.removeChild(newInput);
                 container.removeChild(removeButton);
             };
@@ -92,11 +107,12 @@
         }
     </script>
 </head>
+
 <body class="bg">
     <div>
         <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
         <a href="{{ url_for('user_login') }}">退出</a>
-        <br/>
+        <br />
     </div>
 
     <div class="form-container">
@@ -129,4 +145,5 @@
         </div>
     </div>
 </body>
+
 </html>
