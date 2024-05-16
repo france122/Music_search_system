@@ -3,6 +3,7 @@ from musicdata import db
 cur = db.cursor()
 
 
+
 # 获取详细的歌曲信息
 def get_song_details(song_ids):
     if not song_ids:
@@ -53,32 +54,41 @@ def get_song_details(song_ids):
 
     return detailed_results
 
-
 #歌名
 def songsearch_results(keysong):
-    search_result = []
-    # # 取出待搜索keyword
-    # keyword = request.form['keyword']
-    # 对keyword分词
-    #cut_keywords = jieba.cut_for_search(keyword)
-    # 遍历所有切分出来的词，搜索数据库
-    #for cut_keyword in cut_keywords:
-    #  search_result.extend(sql_query(cut_keyword))
-    # 记录搜到了多少数据
-    #search_result = set(search_result)
-    search_result.extend(sql_query(keysong))
-    return search_result
-def sql_query(keysong):
-    sql= "select SongID,SongName,Duration,Version,AlbumID from songs where SongName like '%%%%%s%%%%'" % keysong
-    cur.execute(sql)
-    result=cur.fetchall()
-    return result
+    search_result = set()  # 使用 set 来自动去重
+    keywords = keysong.split()  # 将输入字符串按空格分隔成单词列表
 
-#歌手
+    for keyword in keywords:
+        results = sql_query(keyword)
+        if results:
+            print(f"Results for '{keyword}': {results}")
+        search_result.update(results)  # 对每个关键字进行查询，并更新结果集
+
+    print(f"Final combined results: {search_result}")
+    return list(search_result)  # 将 set 转换为 list 以便返回
+def sql_query(keysong):
+    sql = "select SongID from songs where SongName like '%%%%%s%%%%'" % keysong
+    print(f"Executing SQL: {sql}")
+    cur.execute(sql)
+    result = cur.fetchall()
+    print(f"Raw query results: {result}")
+    return result  # 返回原始结果列表
+
+
+# 歌手
 def artistsearch_results(keyartist):
-    search_result = []
-    search_result.extend(sql_artistquery(keyartist))
-    return search_result
+    search_result = set()  # 使用 set 来自动去重
+    keywords = keyartist.split()  # 将输入字符串按空格分隔成单词列表
+
+    for keyword in keywords:
+        results = sql_artistquery(keyword)
+        if results:
+            print(f"Results for '{keyword}': {results}")
+        search_result.update(results)  # 对每个关键字进行查询，并更新结果集
+
+    print(f"Final combined results: {search_result}")
+    return list(search_result)  # 将 set 转换为 list 以便返回
 def sql_artistquery(key_artist):
     # 参数化的 SQL 查询，使用 JOIN 来从 performances 和 songs 表中获取相关的歌曲信息
     sql = """
@@ -91,14 +101,23 @@ def sql_artistquery(key_artist):
     # 使用 %s 作为占位符，之后传递一个包含 '%' + key_artist + '%' 的元组来安全地填充占位符
     cur.execute(sql, ('%' + key_artist + '%',))
     result = cur.fetchall()
-    return result
+    print(f"Raw query results for artist '{key_artist}': {result}")
+    return result  # 返回原始结果列表
 
-#专辑
+
+# 专辑
 def albumsearch_results(keyalbum):
-    search_result = []
-    search_result.extend(sql_albumquery(keyalbum))
-    return search_result
+    search_result = set()  # 使用 set 来自动去重
+    keywords = keyalbum.split()  # 将输入字符串按空格分隔成单词列表
 
+    for keyword in keywords:
+        results = sql_albumquery(keyword)
+        if results:
+            print(f"Results for '{keyword}': {results}")
+        search_result.update(results)  # 对每个关键字进行查询，并更新结果集
+
+    print(f"Final combined results: {search_result}")
+    return list(search_result)  # 将 set 转换为 list 以便返回
 def sql_albumquery(key_album):
     # 参数化的 SQL 查询，使用 JOIN 来从 albums 和 songs 表中获取相关的歌曲信息
     sql = """
@@ -110,7 +129,9 @@ def sql_albumquery(key_album):
     # 使用 %s 作为占位符，之后传递一个包含 '%' + key_album + '%' 的元组来安全地填充占位符
     cur.execute(sql, ('%' + key_album + '%',))
     result = cur.fetchall()
-    return result
+    print(f"Raw query results for album '{key_album}': {result}")
+    return result  # 返回原始结果列表
+
 
 #版本
 
@@ -184,3 +205,4 @@ def get_artist_biography(artist_name):
     cur.execute(sql, (artist_name,))
     artist = cur.fetchone()
     return artist[0] if artist else "暂无简介"
+
