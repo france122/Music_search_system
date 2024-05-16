@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>歌词检索系统</title>
@@ -12,27 +11,21 @@
             background-position: center;
             background-attachment: fixed;
         }
-
         * {
             box-sizing: border-box;
         }
-
         .form-container {
             margin: 20px auto;
             width: 600px;
         }
-
         form {
             position: relative;
             width: 100%;
         }
-
-        input,
-        button {
+        input, button {
             border: none;
             outline: none;
         }
-
         button {
             height: 42px;
             cursor: pointer;
@@ -42,7 +35,6 @@
             border: 2px solid #d44907;
             margin-top: 10px;
         }
-
         input {
             width: calc(100% - 110px);
             height: 42px;
@@ -52,28 +44,20 @@
             background: transparent;
             margin-bottom: 10px;
         }
-
         .add-lyric-button {
             width: 100%;
-            background-color: #ec500b;
-            ;
-            border: 2px solid #ec500b;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            background-color: #28a745;
+            border: 2px solid #218838;
         }
-
         .remove-lyric-button {
             width: 100px;
-            margin-left: 5px;
-            background-color: #ec500b;
-            border: 2px solid#ec500b;
+            background-color: #dc3545;
+            border: 2px solid #c82333;
         }
-
         .artist-links {
             margin-top: 20px;
             text-align: center;
         }
-
         .artist-links a {
             margin: 5px;
             display: inline-block;
@@ -86,6 +70,7 @@
         function addLyricInput() {
             var container = document.getElementById('lyric-inputs');
             var inputCount = container.getElementsByTagName('input').length;
+
             var newInput = document.createElement('input');
             newInput.type = 'text';
             newInput.name = 'key_word';
@@ -97,7 +82,7 @@
             removeButton.type = 'button';
             removeButton.className = 'remove-lyric-button';
             removeButton.innerText = '删除';
-            removeButton.onclick = function () {
+            removeButton.onclick = function() {
                 container.removeChild(newInput);
                 container.removeChild(removeButton);
             };
@@ -107,43 +92,155 @@
         }
     </script>
 </head>
-
 <body class="bg">
     <div>
         <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
         <a href="{{ url_for('user_login') }}">退出</a>
-        <br />
+        <br/>
     </div>
 
-    <div class="form-container">
-        <!-- 综合搜索表单 -->
-        <form action="{{ url_for('search') }}" method="get">
-            <div id="lyric-inputs">
-                <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌词" name="key_word">
+<div class="form-container">
+    <!-- 综合搜索表单 -->
+    <form action="{{ url_for('search') }}" method="get">
+        <div id="search-inputs">
+            <div class="search-field">
+                <select name="fields[]" class="field-select" onchange="updateField(this)">
+                    <option value="key_all">全部字段</option>
+                    <option value="key_word">歌词</option>
+                    <option value="key_artist">歌手</option>
+                    <option value="key_song">歌名</option>
+                    <option value="key_album">专辑</option>
+                    <option value="key_version">版本</option>
+                </select>
+                <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的内容" name="key_all">
             </div>
-            <button type="button" class="add-lyric-button" onclick="addLyricInput()">添加歌词检索框</button>
-            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌手" name="key_artist">
-            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_song">
-            <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的专辑" name="key_album">
-            <select name="key_version" style="font-size: 20px; width: 180px; height: 30px;">
-                <option value="">不限版本</option>
-                <option value="Live">Live</option>
-                <option value="DJ">DJ</option>
-                <option value="广场舞版">广场舞版</option>
-                <option value="普通话版">普通话版</option>
-            </select>
-            <button type="submit">综合搜索</button>
-        </form>
-
-        <div class="artist-links">
-            <a href="{{ url_for('search', key_artist='苏打绿') }}">苏打绿</a>
-            <a href="{{ url_for('search', key_artist='凤凰传奇') }}">凤凰传奇</a>
-            <a href="{{ url_for('search', key_artist='周杰伦') }}">周杰伦</a>
-            <a href="{{ url_for('search', key_artist='李宇春') }}">李宇春</a>
-            <a href="{{ url_for('search', key_artist='张学友') }}">张学友</a>
-            <a href="{{ url_for('search', key_artist='五月天') }}">五月天</a>
         </div>
-    </div>
-</body>
+        <button type="button" onclick="addSearchField()">添加搜索框</button>
+        <button type="submit">综合搜索</button>
+    </form>
 
+
+<script>
+    function addSearchField() {
+        const searchInputs = document.getElementById('search-inputs');
+
+        const searchFieldDiv = document.createElement('div');
+        searchFieldDiv.className = 'search-field';
+
+        const fieldSelect = document.createElement('select');
+        fieldSelect.name = 'fields[]';
+        fieldSelect.className = 'field-select';
+        fieldSelect.onchange = function() { updateField(this) };
+
+        const options = [
+            { value: 'key_all', text: '全部字段' },
+            { value: 'key_word', text: '歌词' },
+            { value: 'key_artist', text: '歌手' },
+            { value: 'key_song', text: '歌名' },
+            { value: 'key_album', text: '专辑' },
+            { value: 'key_version', text: '版本' }
+        ];
+
+        options.forEach(optionData => {
+            const option = document.createElement('option');
+            option.value = optionData.value;
+            option.text = optionData.text;
+            fieldSelect.appendChild(option);
+        });
+
+        searchFieldDiv.appendChild(fieldSelect);
+        addInputField(searchFieldDiv, 'key_all');
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.textContent = '删除';
+        removeButton.onclick = function() { removeSearchField(this) };
+
+        searchFieldDiv.appendChild(removeButton);
+        searchInputs.appendChild(searchFieldDiv);
+    }
+
+    function removeSearchField(button) {
+        const searchFieldDiv = button.parentNode;
+        searchFieldDiv.remove();
+    }
+
+    function updateField(selectElement) {
+        const searchFieldDiv = selectElement.parentNode;
+        const selectedValue = selectElement.value;
+
+        // 移除旧的输入框或选择框
+        const oldInput = selectElement.nextElementSibling;
+        if (oldInput) {
+            oldInput.remove();
+        }
+
+        addInputField(searchFieldDiv, selectedValue);
+    }
+
+    function addInputField(parent, fieldType) {
+        let inputField;
+        if (fieldType === 'key_version') {
+            inputField = document.createElement('select');
+            inputField.name = fieldType;
+            inputField.style.fontSize = '20px';
+
+            const versionOptions = [
+                { value: '', text: '不限版本' },
+                { value: 'Live', text: 'Live' },
+                { value: 'DJ', text: 'DJ' },
+                { value: '广场舞版', text: '广场舞版' },
+                { value: '普通话版', text: '普通话版' }
+            ];
+
+            versionOptions.forEach(optionData => {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.text = optionData.text;
+                inputField.appendChild(option);
+            });
+        } else {
+            inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.style.fontSize = '20px';
+            inputField.name = fieldType;
+
+            switch (fieldType) {
+                case 'key_all':
+                    inputField.placeholder = '请输入您想要查询的内容';
+                    break;
+                case 'key_word':
+                    inputField.placeholder = '请输入您想要查询的歌词';
+                    break;
+                case 'key_artist':
+                    inputField.placeholder = '请输入您想要查询的歌手';
+                    break;
+                case 'key_song':
+                    inputField.placeholder = '请输入您想要查询的歌名';
+                    break;
+                case 'key_album':
+                    inputField.placeholder = '请输入您想要查询的专辑';
+                    break;
+            }
+        }
+
+        parent.appendChild(inputField);
+    }
+</script>
+
+  <div class="artist-links">
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '苏打绿'}) }}">苏打绿</a>
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '凤凰传奇'}) }}">凤凰传奇</a>
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '周杰伦'}) }}">周杰伦</a>
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '李宇春'}) }}">李宇春</a>
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '张学友'}) }}">张学友</a>
+    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '五月天'}) }}">五月天</a>
+</div>
+
+</div>
+
+
+
+
+</body>
 </html>
