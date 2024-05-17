@@ -1,10 +1,12 @@
 import csv
 import jieba
 from collections import defaultdict
+import sys
+import os
 
 # 读取CSV文件并建立倒排索引
-with open('../data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
-        open('../data_files/index.csv', 'w', newline='', encoding='utf-8') as csvfile_out:
+with open('C:/Users/lenovo/Desktop/Music_search_system/data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
+        open('C:/Users/lenovo/Desktop/Music_search_system/data_files/index.csv', 'w', newline='', encoding='utf-8') as csvfile_out:
     # 定义CSV文件读取器和写入器
     reader = csv.reader(csvfile_in)
     writer = csv.writer(csvfile_out)

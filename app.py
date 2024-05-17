@@ -8,6 +8,7 @@ from musicdata import db
 
 from model.Jieba_query import inverted_index
 
+
 app = Flask(__name__)
 
 @app.route('/')
