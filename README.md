@@ -19,16 +19,16 @@
 - Pymysql(connecting the backend and the database)
 
 ## 数据库介绍
-![alt text](er.jpg)
+![img.png](img.png)
 
 
-我们从酷狗音乐上根据歌手名爬取了1299条歌曲数据，根据上面的ER图转换成含有如下6张表的数据库music
+我们从酷狗音乐上根据歌手名爬取了1331条歌曲数据，根据上面的ER图转换成含有如下6张表的数据库music
 - albums专辑（专辑编号、专辑名称、歌手编号）
 - artists歌手（歌手编号、歌手名称）
-- songs歌曲（歌曲编号、歌曲名称、歌曲时长、歌曲版本、歌词、专辑编号、唤醒度、愉悦度）
+- songs歌曲（歌曲编号、歌曲名称、歌曲时长、歌曲版本、歌词、专辑编号）
 - performance演唱（歌手编号、歌曲编号）
 - user（用户名，密码）
-- collections（用户名，收藏的歌曲编号）
+- collects（用户名，收藏的歌曲编号）
 
 ## 运行方法
 - 数据库连接：在navicat或者mysql中运行全部的sql文件，修改data.py中有关db的username和password;
