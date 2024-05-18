@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `collections`;
 CREATE TABLE `collections` (
   `username` varchar(20) NOT NULL,
   `SongID` char(5) NOT NULL,
-  PRIMARY KEY (`username`),
+  PRIMARY KEY (`username`,`SongID`),
   KEY `FK_collections_SongID_idx` (`SongID`),
   CONSTRAINT `FK_collections_SongID` FOREIGN KEY (`SongID`) REFERENCES `songs` (`SongID`),
   CONSTRAINT `FK_collections_username` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
@@ -50,4 +50,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-18 16:26:38
+-- Dump completed on 2024-05-18 17:49:41
