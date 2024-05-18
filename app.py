@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request
 import model.search
 from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
-from model.search import songsearch_results, artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
+from model.search import songsearch_results, emotionsearch_results,artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
 import time
 from musicdata import db
 from model.whoosh_test import whoosh_search,whoosh_index
@@ -75,6 +75,7 @@ def lyrics_search(keywords):
 def compare():
     return render_template('compare.html')
 
+
 @app.route("/search", methods=["GET", "POST"])
 def search():
     search_params = {}
@@ -89,7 +90,10 @@ def search():
             if field == 'key_artist' and search_params[field] in major_artists:
                 artist_biography = get_artist_biography(search_params[field])
 
-    if not search_params:
+    arousal = request.args.get('arousal')
+    valence = request.args.get('valence')
+
+    if not search_params and (arousal is None or valence is None):
         return render_template("search.html", error="请至少填写一个搜索条件。")
 
     results_sets = []
@@ -137,6 +141,16 @@ def search():
     else:
         final_results = set()
 
+    if arousal is not None and valence is not None:
+        if final_results:
+            # 如果有其他检索条件的结果，对这些结果进行情感排序
+            emotion_sorted_results = emotionsearch_results(arousal, valence, list(final_results))
+        else:
+            # 如果没有其他检索条件的结果，进行全表情感搜索
+            emotion_sorted_results = emotionsearch_results(arousal, valence)
+
+        final_results = emotion_sorted_results
+
     # 从后端获取详细的歌曲信息
     detailed_results = get_song_details(final_results)
 
@@ -146,6 +160,7 @@ def search():
     print("Detailed Results:", detailed_results)
 
     return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
+
 
 def all_field_search_results(keyword):
     # 对各个字段分别进行搜索并转换为集合
