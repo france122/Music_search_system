@@ -19,7 +19,7 @@
 - Pymysql(connecting the backend and the database)
 
 ## 数据库介绍
-![alt text](image.png)
+![alt text](er.jpg)
 
 
 我们从酷狗音乐上根据歌手名爬取了1331条歌曲数据，根据上面的ER图转换成含有如下6张表的数据库music
