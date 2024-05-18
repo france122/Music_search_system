@@ -3,9 +3,9 @@ import model.search
 from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
 from model.search import songsearch_results, artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
-
+import time
 from musicdata import db
-
+from model.whoosh_test import whoosh_search,whoosh_index
 from model.Jieba_query import inverted_index
 
 app = Flask(__name__)
@@ -48,53 +48,32 @@ def register():
             return render_template('search.html', username=username)
     return render_template('register.html')
 
-from flask import Flask, render_template, redirect, url_for, request
-import model.search
-from model.check_login import is_existed, exist_user, is_null
-from model.check_regist import add_user
-from model.search import songsearch_results, artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
-from musicdata import db
-from model.Jieba_query import inverted_index
 
-app = Flask(__name__)
+@app.route('/test_search', methods=['GET','POST'])
+def test_search():
+    key_word = request.args.get('key_word')  # 从GET请求中获取key_word
+    key_word=key_word.split()
+    search_results1, search_results2,time1,time2 = lyrics_search(key_word)
+    return render_template('compare.html', search_results1=search_results1,search_results2=search_results2,time1=time1,time2=time2)
 
-@app.route('/')
-def index():
-    return redirect(url_for('user_login'))
+def lyrics_search(keywords):
+    start_time1 = time.time()
+    search_results1 = model.Jieba_query.show_results(keywords, inverted_index)
+    print(search_results1)
+    end_time1 = time.time()
+    time1 = round(end_time1 - start_time1, 3)
+    start_time2 = time.time()
+    whoosh_index()
+    search_results2 = whoosh_search(keywords)
+    end_time2 = time.time()
+    time2 = round(end_time2 - start_time2, 3)
+    detailed_results1 = get_song_details(search_results1)
+    detailed_results2 = get_song_details(search_results2)
+    return detailed_results1,detailed_results2,time1,time2
 
-@app.route('/user_login', methods=['GET', 'POST'])
-def user_login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if is_null(username, password):
-            login_message = "温馨提示：账号和密码是必填"
-            return render_template('login.html', message=login_message)
-        elif is_existed(username, password):
-            return render_template('search.html', username=username)
-        elif exist_user(username):
-            login_message = "温馨提示：密码错误，请输入正确密码"
-            return render_template('login.html', message=login_message)
-        else:
-            login_message = "温馨提示：不存在该用户，请先注册"
-            return render_template('login.html', message=login_message)
-    return render_template('login.html')
-
-@app.route("/register", methods=["GET", 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if is_null(username, password):
-            login_message = "温馨提示：账号和密码是必填"
-            return render_template('register.html', message=login_message)
-        elif exist_user(username):
-            login_message = "温馨提示：用户已存在，请直接登录"
-            return render_template('register.html', message=login_message)
-        else:
-            add_user(request.form['username'], request.form['password'])
-            return render_template('search.html', username=username)
-    return render_template('register.html')
+@app.route('/compare')
+def compare():
+    return render_template('compare.html')
 
 @app.route("/search", methods=["GET", "POST"])
 def search():

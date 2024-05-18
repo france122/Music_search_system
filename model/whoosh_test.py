@@ -18,7 +18,7 @@ def whoosh_index():
     writer = ix.writer()
 
     # 读取CSV文件并存入文档
-    with open('../data_files/music.csv', 'r', encoding='gbk') as csvfile_in:
+    with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in:
         # 定义CSV文件读取器和写入器
         reader = csv.reader(csvfile_in)
         # 跳过标题行（如果存在）

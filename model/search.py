@@ -2,8 +2,6 @@ import jieba
 from musicdata import db
 cur = db.cursor()
 
-
-
 # 获取详细的歌曲信息
 def get_song_details(song_ids):
     if not song_ids:
