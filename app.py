@@ -141,15 +141,18 @@ def search():
     else:
         final_results = set()
 
-    if arousal is not None and valence is not None:
+    # 添加情感搜索逻辑
+    if arousal and valence:
         if final_results:
             # 如果有其他检索条件的结果，对这些结果进行情感排序
-            emotion_sorted_results = emotionsearch_results(arousal, valence, list(final_results))
+            final_results = emotionsearch_results(arousal, valence, list(final_results))
         else:
             # 如果没有其他检索条件的结果，进行全表情感搜索
-            emotion_sorted_results = emotionsearch_results(arousal, valence)
-
-        final_results = emotion_sorted_results
+            final_results = emotionsearch_results(arousal, valence)
+    else:
+        if not final_results:
+            # 如果没有情感参数且没有其他条件的结果，返回空结果
+            return render_template("search.html", error="没有符合条件的结果。")
 
     # 从后端获取详细的歌曲信息
     detailed_results = get_song_details(final_results)
