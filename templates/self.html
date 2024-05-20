@@ -1,9 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>检索结果</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人</title>
+    <link rel="stylesheet" href="css/style.css">
     <style type="text/css">
         .bg {
             background-image: url("../static/background.jpg");
@@ -279,22 +281,22 @@
         }
 
         .width_f_li {
-            width: 32%;
+            width: 25%;
             /* 歌曲名列宽度 */
         }
 
         .width_singer_li {
-            width: 15%;
+            width: 12%;
             /* 歌手列宽度 */
         }
 
         .width_album_li {
-            width: 15%;
+            width: 12%;
             /* 专辑列宽度 */
         }
 
         .width_time_li {
-            width: 16%;
+            width: 12%;
             /* 时长列宽度 */
         }
 
@@ -318,22 +320,200 @@
      text-decoration: none;|
      font-size: xx-large;
      }
+
+      * {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+body {
+
+
+}
+
+#bigbox {
+    width: 1000px;
+    margin: 0 auto;
+}
+
+#banner {
+    width: 1000px;
+    font-size: 0px;
+}
+
+#banner img {
+    width: 1000px;
+}
+
+nav {
+
+    width: 1000px;
+    height: 60px;
+}
+
+nav a {
+    text-decoration: none;
+    line-height: 60px;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    font-weight: bold;
+    float:right;
+
+}
+
+nav a:hover {
+
+}
+
+.dangqian {
+
+
+}
+
+#main {
+    height: 490px;
+    width: 1000px;
+    margin: 0 auto;
+
+}
+
+#main_left {
+    width: 300px;
+    display: inline-block;
+
+    float: left;
+}
+
+h2 {
+    box-sizing: border-box;
+    padding-left: 10px;
+    font-size: 20px;
+    line-height: 30px;
+
+}
+
+#main_left img {
+    width: 300px;
+}
+
+#main_left p {
+    margin-left: 10px;
+    line-height: 40px;
+}
+
+#main_left span {
+    font-weight: bold;
+}
+
+#main_right {
+    position: relative;
+    width: 680px;
+    margin-left: 20px;
+    display: inline-block;
+    height: 200px;
+}
+
+#main_right img {
+    position: absolute;
+    width: 260px;
+    right: 0px;
+    top: 30px;
+}
+
+#main_right p {
+    width: 400px;
+    display: inline-block;
+    margin-left: 10px;
+    text-indent: 32px;
+    line-height: 30px;
+    margin-top: 10px;
+}
+
+#luxing {
+
+    width: 1000px;
+}
+
+#luxing div {
+    font-size: 0px;
+}
+
+#picture {
+    font-size: 0px;
+    display: inline-block;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-top: 25px;
+}
+
+#picture img {
+    width: 200px;
+}
+
+#picture p {
+    font-size: 16px;
+    text-align: center;
+    line-height: 60px;
+
+}
+
+footer {
+    line-height: 60px;
+    font-size: 14px;
+    text-align: center;
+
+}
+
+#main_right ul li {
+    width: 660px;
+    margin-left: 10px;
+    font-size: 12px;
+    margin-top: 10px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 10px;
+}
+
+#main_right ul li span {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#liuyan {
+    width: 660px;
+    margin-left: 10px;
+    margin: 20px;
+}
+
+#liuyan span {
+    display: inline-block;
+    width: 80px;
+    line-height: 40px;
+}
+
+button {
+    width: 100px;
+    height: 30px;
+    margin-left: 80px;
+}
     </style>
 </head>
-<body class="bg">
-    <div>
-        <h1 align="center">检索结果</h1>
-        <div>
-            {% if artist_biography %}
-                <div class="artist-biography">
-                    <h2>歌手简介</h2>
-                    <p>{{ artist_biography }}</p>
-                </div>
-            {% endif %}
-        </div>
-        <div>
-            <ul class="list_header">
-            <li class="width_f_li song_name_li">歌曲名
+
+<body>
+    <div id="bigbox">
+        <nav>
+        <a class="back-link" href="{{ url_for('user_login') }}">退出</a>
+        <a class="back-link" href="{{ url_for('search') }}">首页</a>
+        <a class="back-link" href="{{ url_for('compare') }}">测试</a>
+
+        <br/>
+        </nav>
+
+        <div id="main">
+            <div>
+            <ul class="list_content">
+            <li class="width_f_li song_name_li">歌名
             </li>
             <li class="width_singer_li">
                 歌手
@@ -347,25 +527,27 @@
             <li class="width_time_li">
                 时长
             </li>
+            <li class="width_time_li">
+
+            </li>
             </ul>
 
-            {% for search_result in search_results %}
-             <a  href="{{ url_for('song_detail', song_id=search_result['SongID']) }}"  id="test">
-                    <ul class="list_content">
-                    <li class="width_f_li song_name_li">{{ search_result['SongName'] }}</li>
-                    <li class="width_singer_li">{{ search_result['Artists']|join(', ')}}</li>
-                    <li class="width_album_li">{{ search_result['AlbumName'] }}</li>
-                    <li class="width_time_li">{{ search_result['Version']}}</li>
-                    <li class="width_time_li">{{ search_result['Duration']}}</li>
-                    </ul>
-             </a>
-        </div>
+            {% for collect_result in collect_results %}
+                <ul class="list_content">
+                <li class="width_f_li song_name_li">{{ collect_result['SongName'] }}</li>
+                <li class="width_singer_li">{{ collect_result['Artists']|join(', ')}}</li>
+                <li class="width_album_li">{{ collect_result['AlbumName'] }}</li>
+                <li class="width_time_li">{{ collect_result['Version']}}</li>
+                <li class="width_time_li">{{ collect_result['Duration']}}</li>
+                <li class="width_time_li"><button class="favorite-btn" id="CancelFavoritesButton" type="submit">&#x2661;取消收藏</button></li>
+                </ul>
+
             {% endfor %}
+            </div>
+            </div>
+
 
         </div>
-        <div style="text-align: center;margin-top: 170px">
-            <a style="color:black;" href="{{ url_for('search') }}">返回搜索页面</a>
-        </div>
-    </div>
+
 </body>
 </html>

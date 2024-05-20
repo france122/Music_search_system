@@ -72,12 +72,36 @@
         .favorite-btn:hover {
             color: red;
         }
+        nav {
+
+    width: 1000px;
+    height: 60px;
+}
+
+nav a {
+    text-decoration: none;
+    line-height: 60px;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    font-weight: bold;
+    float:right;
+
+}
     </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg">
+        <nav>
+        <a class="back-link" href="{{ url_for('user_login') }}">退出</a>
+        <a class="back-link" href="{{ url_for('self') }}">个人</a>
+        <a class="back-link" href="{{ url_for('compare') }}">测试</a>
+
+        <br/>
+        </nav>
     <div class="container">
         <h1>歌曲详情</h1>
+
         <form action="{{ url_for('add_to_favorites', song_id=song_detail.SongID) }}" method="post">
     <button class="favorite-btn" id="addToFavoritesButton" type="submit">&#x2661;收藏</button>
 </form>

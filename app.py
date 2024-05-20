@@ -4,7 +4,7 @@ from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
 from model.search import songsearch_results, emotionsearch_results,artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
 import time
-from musicdata import db
+from musicdata import db, cursor
 from flask import jsonify,session
 from model.whoosh_test import whoosh_search,whoosh_index
 from model.Jieba_query import inverted_index
@@ -16,9 +16,7 @@ app.secret_key = '1234'
 def index():
     return redirect(url_for('user_login'))
 
-@app.route('/self')
-def self():
-    return render_template('self.html')
+
 @app.route('/index1')
 def index1():
     return render_template('index.html')
@@ -204,6 +202,19 @@ def song_detail(song_id):
     # print(song_detail)
     return render_template("songdetail.html", song_detail=song_detail)
 
+@app.route("/self")
+def self():
+    myusername = session['username']
+    #myusername = request.form.get("username")
+    sql = "select SongID from collects where username = 'admin' "#.format(myusername=myusername)
+    cursor.execute(sql)
+    collect_results = []
+    collect_results_songID= cursor.fetchall()
+    collect_results = get_song_details(collect_results_songID)
+
+    print(collect_results)
+    return render_template("self.html", collect_results=collect_results)
+
 
 @app.route('/add_to_favorites/<song_id>', methods=['POST'])
 def add_to_favorites(song_id):
@@ -223,4 +234,6 @@ def add_to_favorites(song_id):
 
 
 if __name__ == '__main__':
+
     app.run(debug=True, host='0.0.0.0', port=6688)
+
