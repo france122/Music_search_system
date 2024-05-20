@@ -533,6 +533,7 @@ button {
             </ul>
 
             {% for collect_result in collect_results %}
+                <a  href="{{ url_for('song_detail', song_id=collect_result['SongID']) }}"  id="test">
                 <ul class="list_content">
                 <li class="width_f_li song_name_li">{{ collect_result['SongName'] }}</li>
                 <li class="width_singer_li">{{ collect_result['Artists']|join(', ')}}</li>
@@ -540,7 +541,7 @@ button {
                 <li class="width_time_li">{{ collect_result['Version']}}</li>
                 <li class="width_time_li">{{ collect_result['Duration']}}</li>
                 <li class="width_time_li"><button class="favorite-btn" id="CancelFavoritesButton" type="submit">&#x2661;取消收藏</button></li>
-                </ul>
+                </ul></a>
 
             {% endfor %}
             </div>
