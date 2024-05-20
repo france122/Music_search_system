@@ -37,8 +37,6 @@
             align-items: center;
             padding-left: 50px;
             height: 100px;
-            /* background-color: #ffecdf; */
-            /* border-bottom: 2px solid #ec8e65; */
         }
 
         .nav ul {
@@ -83,10 +81,20 @@
             display: inline-block;
         }
 
-        .form-container {
+        .main-content {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
             margin: 20px auto;
+            width: 80%;
+            transform: translateX(20%);
+        }
+
+        .form-container {
             width: 600px;
             text-align: center;
+            position: relative;
+            right: 5%;
         }
 
         form {
@@ -125,7 +133,6 @@
             padding: 0 20px;
             margin-right: 40px;
             border-radius: 6px;
-
         }
 
         button:hover {
@@ -173,7 +180,6 @@
         .field-select,
         .input-field,
         .remove-button {
-            /* height: 40px; */
             font-size: 20px;
             margin-right: 10px;
         }
@@ -185,9 +191,7 @@
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 6px;
-            /* 设置圆角值*/
         }
-
 
         .remove-button:hover {
             background-color: #d32f2f;
@@ -204,6 +208,12 @@
             margin: 0 10px;
         }
 
+         .explain {
+            text-align: left;
+            margin-left: 100px;
+            color:orange;
+        }
+
         .singer {
             display: inline-block;
             text-align: center;
@@ -215,7 +225,7 @@
 
         .singer img {
             height: 160px;
-            width: 180px;
+            width: 160px;
         }
 
         .singer_name {
@@ -233,8 +243,23 @@
             padding: 20px 0;
             background-color: #f2f2f2;
         }
-    </style>
 
+        .canvas-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            position: relative;
+            right: 8%;
+            border: 1px solid #000;
+        }
+
+        #arousal-valence-canvas {
+            width: 100%;
+            height: 100%;
+            background-image: url("../static/image/va.jpg");
+            background-size: cover;
+        }
+    </style>
 </head>
 
 <body class="bg">
@@ -249,212 +274,251 @@
         </div>
     </div>
 
-
     <div class="welcome_text">
         <h2>您好，{{ username }}，欢迎来到歌词检索系统</h2>
         <br />
     </div>
 
-    <div class="form-container">
-        <!-- 综合搜索表单 -->
-        <form action="{{ url_for('search') }}" method="get">
-            <div id="search-inputs">
-                <div class="search-field">
-                    <select name="fields[]" class="field-select" onchange="updateField(this)">
-                        <option value="key_all">全部字段</option>
-                        <option value="key_word">歌词</option>
-                        <option value="key_artist">歌手</option>
-                        <option value="key_song">歌名</option>
-                        <option value="key_album">专辑</option>
-                        <option value="key_version">版本</option>
-                    </select>
-                    <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的内容" name="key_all">
+    <div class="main-content">
+        <div class="form-container">
+            <!-- 综合搜索表单 -->
+            <form action="{{ url_for('search') }}" method="get">
+                <div id="search-inputs">
+                    <div class="search-field">
+                        <select name="fields[]" class="field-select" onchange="updateField(this)">
+                            <option value="key_all">全部字段</option>
+                            <option value="key_word">歌词</option>
+                            <option value="key_artist">歌手</option>
+                            <option value="key_song">歌名</option>
+                            <option value="key_album">专辑</option>
+                            <option value="key_version">版本</option>
+                        </select>
+                        <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的内容" name="key_all">
+                    </div>
                 </div>
-            </div>
-            <div class="form-buttons">
-                <button type="button" onclick="addSearchField()">添加搜索框</button>
-                <button type="submit">搜&nbsp;索</button>
-            </div>
-        </form>
+                <div class="form-buttons">
+                    <button type="button" onclick="addSearchField()">添加搜索框</button>
+                    <button type="submit">搜 索</button>
+                    <input type="hidden" id="arousal" name="arousal" value="">
+                    <input type="hidden" id="valence" name="valence" value="">
+                </div>
+            </form>
+        </div>
 
+        <div class="canvas-container">
+            <canvas id="arousal-valence-canvas" width="300" height="300"></canvas>
+            <div></div>
+        </div>
+    </div>
 
-        <script>
-            function addSearchField() {
-                const searchInputs = document.getElementById('search-inputs');
+    <script>
+        function addSearchField() {
+            const searchInputs = document.getElementById('search-inputs');
 
-                const searchFieldDiv = document.createElement('div');
-                searchFieldDiv.className = 'search-field';
+            const searchFieldDiv = document.createElement('div');
+            searchFieldDiv.className = 'search-field';
 
-                const fieldSelect = document.createElement('select');
-                fieldSelect.name = 'fields[]';
-                fieldSelect.className = 'field-select';
-                fieldSelect.onchange = function () { updateField(this) };
+            const fieldSelect = document.createElement('select');
+            fieldSelect.name = 'fields[]';
+            fieldSelect.className = 'field-select';
+            fieldSelect.onchange = function () { updateField(this) };
 
-                const options = [
-                    { value: 'key_all', text: '全部字段' },
-                    { value: 'key_word', text: '歌词' },
-                    { value: 'key_artist', text: '歌手' },
-                    { value: 'key_song', text: '歌名' },
-                    { value: 'key_album', text: '专辑' },
-                    { value: 'key_version', text: '版本' }
+            const options = [
+                { value: 'key_all', text: '全部字段' },
+                { value: 'key_word', text: '歌词' },
+                { value: 'key_artist', text: '歌手' },
+                { value: 'key_song', text: '歌名' },
+                { value: 'key_album', text: '专辑' },
+                { value: 'key_version', text: '版本' }
+            ];
+
+            options.forEach(optionData => {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.text = optionData.text;
+                fieldSelect.appendChild(option);
+            });
+
+            searchFieldDiv.appendChild(fieldSelect);
+            addInputField(searchFieldDiv, 'key_all');
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '删除';
+            removeButton.className = 'remove-button';
+            removeButton.onclick = function () { removeSearchField(this) };
+
+            searchFieldDiv.appendChild(removeButton);
+            searchInputs.appendChild(searchFieldDiv);
+        }
+
+        function removeSearchField(button) {
+            const searchFieldDiv = button.parentNode;
+            searchFieldDiv.remove();
+        }
+
+        function updateField(selectElement) {
+            const searchFieldDiv = selectElement.parentNode;
+            const selectedValue = selectElement.value;
+
+            const oldInput = selectElement.nextElementSibling;
+            if (oldInput && oldInput.tagName !== 'BUTTON') {
+                oldInput.remove();
+            }
+
+            addInputField(searchFieldDiv, selectedValue);
+        }
+
+        function addInputField(parent, fieldType) {
+            let inputField;
+            if (fieldType === 'key_version') {
+                inputField = document.createElement('select');
+                inputField.name = fieldType;
+                inputField.className = 'input-field';
+
+                const versionOptions = [
+                    { value: '', text: '不限版本' },
+                    { value: 'Live', text: 'Live' },
+                    { value: 'DJ', text: 'DJ' },
+                    { value: '广场舞版', text: '广场舞版' },
+                    { value: '普通话版', text: '普通话版' }
                 ];
 
-                options.forEach(optionData => {
+                versionOptions.forEach(optionData => {
                     const option = document.createElement('option');
                     option.value = optionData.value;
                     option.text = optionData.text;
-                    fieldSelect.appendChild(option);
+                    inputField.appendChild(option);
                 });
+            } else {
+                inputField = document.createElement('input');
+                inputField.type = 'text';
+                inputField.className = 'input-field';
+                inputField.name = fieldType;
 
-                searchFieldDiv.appendChild(fieldSelect);
-                addInputField(searchFieldDiv, 'key_all');
-
-                const removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.textContent = '删除';
-                removeButton.className = 'remove-button';
-                removeButton.onclick = function () { removeSearchField(this) };
-
-                searchFieldDiv.appendChild(removeButton);
-                searchInputs.appendChild(searchFieldDiv);
-            }
-
-            function removeSearchField(button) {
-                const searchFieldDiv = button.parentNode;
-                searchFieldDiv.remove();
-            }
-
-            function updateField(selectElement) {
-                const searchFieldDiv = selectElement.parentNode;
-                const selectedValue = selectElement.value;
-
-                // 移除旧的输入框或选择框
-                const oldInput = selectElement.nextElementSibling;
-                if (oldInput && oldInput.tagName !== 'BUTTON') {
-                    oldInput.remove();
+                switch (fieldType) {
+                    case 'key_all':
+                        inputField.placeholder = '请输入您想要查询的内容';
+                        break;
+                    case 'key_word':
+                        inputField.placeholder = '请输入您想要查询的歌词';
+                        break;
+                    case 'key_artist':
+                        inputField.placeholder = '请输入您想要查询的歌手';
+                        break;
+                    case 'key_song':
+                        inputField.placeholder = '请输入您想要查询的歌名';
+                        break;
+                    case 'key_album':
+                        inputField.placeholder = '请输入您想要查询的专辑';
+                        break;
                 }
-
-                addInputField(searchFieldDiv, selectedValue);
             }
 
-            function addInputField(parent, fieldType) {
-                let inputField;
-                if (fieldType === 'key_version') {
-                    inputField = document.createElement('select');
-                    inputField.name = fieldType;
-                    inputField.className = 'input-field';
+            const removeButton = parent.querySelector('.remove-button');
+            parent.insertBefore(inputField, removeButton);
+        }
 
-                    const versionOptions = [
-                        { value: '', text: '不限版本' },
-                        { value: 'Live', text: 'Live' },
-                        { value: 'DJ', text: 'DJ' },
-                        { value: '广场舞版', text: '广场舞版' },
-                        { value: '普通话版', text: '普通话版' }
-                    ];
+        const canvas = document.getElementById('arousal-valence-canvas');
+        const ctx = canvas.getContext('2d');
+        let dragging = false;
+        let arousal = 0;
+        let valence = 0;
 
-                    versionOptions.forEach(optionData => {
-                        const option = document.createElement('option');
-                        option.value = optionData.value;
-                        option.text = optionData.text;
-                        inputField.appendChild(option);
-                    });
-                } else {
-                    inputField = document.createElement('input');
-                    inputField.type = 'text';
-                    inputField.className = 'input-field';
-                    inputField.name = fieldType;
+        canvas.addEventListener('mousedown', function (e) {
+            dragging = true;
+            updateArousalValence(e);
+        });
 
-                    switch (fieldType) {
-                        case 'key_all':
-                            inputField.placeholder = '请输入您想要查询的内容';
-                            break;
-                        case 'key_word':
-                            inputField.placeholder = '请输入您想要查询的歌词';
-                            break;
-                        case 'key_artist':
-                            inputField.placeholder = '请输入您想要查询的歌手';
-                            break;
-                        case 'key_song':
-                            inputField.placeholder = '请输入您想要查询的歌名';
-                            break;
-                        case 'key_album':
-                            inputField.placeholder = '请输入您想要查询的专辑';
-                            break;
-                    }
-                }
-
-                const removeButton = parent.querySelector('.remove-button');
-                parent.insertBefore(inputField, removeButton);
+        canvas.addEventListener('mousemove', function (e) {
+            if (dragging) {
+                updateArousalValence(e);
             }
-        </script>
+        });
 
-    </div>
+        canvas.addEventListener('mouseup', function () {
+            dragging = false;
+        });
+
+        function updateArousalValence(e) {
+            const rect = canvas.getBoundingClientRect();
+            valence = (e.clientX - rect.left) / rect.width * 2 - 1;
+            arousal = 1 - (e.clientY - rect.top) / rect.height * 2;
+            document.getElementById('arousal').value = arousal.toFixed(2);
+            document.getElementById('valence').value = valence.toFixed(2);
+            drawPoint(valence, arousal);
+        }
+
+        function drawPoint(valence, arousal) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const x = (valence + 1) / 2 * canvas.width;
+            const y = (1 - arousal) / 2 * canvas.height;
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+    </script>
+
     <div class="box2">
+        <div class="explain">点击以下主要歌手可浏览其全部歌曲</div>
         <ul>
             <li>
                 <div class="singer">
-                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '周杰伦'}) }}"
-                        target="_blank">
-                        <img src="../static/image/artist1.jpg"
-                            alt="歌手图片">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '周杰伦'}) }}" target="_blank">
+                        <img src="../static/image/artist1.jpg" alt="歌手图片">
                         <div class="singer_name">周杰伦</div>
-                        <p class="introduction">Jay Chou</p>
                     </a>
                 </div>
             </li>
             <li>
                 <div class="singer">
-                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '凤凰传奇'}) }}"
-                        target="_blank">
-                        <img src="../static/image/artist2.jpg"
-                            alt="歌手图片">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '凤凰传奇'}) }}" target="_blank">
+                        <img src="../static/image/artist2.jpg" alt="歌手图片">
                         <div class="singer_name">凤凰传奇</div>
-                        <p class="introduction">国民组合 老少皆宜</p>
                     </a>
                 </div>
             </li>
             <li>
                 <div class="singer">
-                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '苏打绿'}) }}"
-                        target="_blank">
-                        <img src="../static/image/artist3.jpg"
-                            alt="歌手图片">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '苏打绿'}) }}" target="_blank">
+                        <img src="../static/image/artist3.jpg" alt="歌手图片">
                         <div class="singer_name">苏打绿</div>
-                        <p class="introduction">文字介绍</p>
                     </a>
                 </div>
             </li>
             <li>
                 <div class="singer">
-                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '张学友'}) }}"
-                        target="_blank">
-                        <img src="../static/image/artist4.jpg"
-                            alt="歌手图片">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '李宇春'}) }}" target="_blank">
+                        <img src="../static/image/artist4.jpg" alt="歌手图片">
+                        <div class="singer_name">李宇春</div>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '张学友'}) }}" target="_blank">
+                        <img src="../static/image/artist5.jpg" alt="歌手图片">
                         <div class="singer_name">张学友</div>
-                        <p class="introduction">文字介绍</p>
+
                     </a>
                 </div>
             </li>
             <li>
                 <div class="singer">
-                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '五月天'}) }}"
-                        target="_blank">
-                        <img src="../static/image/artist5.jpg"
-                            alt="歌手图片">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '五月天'}) }}" target="_blank">
+                        <img src="../static/image/artist6.jpg" alt="歌手图片">
                         <div class="singer_name">五月天</div>
-                        <p class="introduction">文字介绍</p>
+
                     </a>
                 </div>
             </li>
-
-            <!-- Add more singers as needed -->
         </ul>
     </div>
+
     <footer class="btm">
-        copyright@2024 京ICP12345678 技术支持：第三小组
+        @信息存储与检索课程 第三小组
     </footer>
-
-
 </body>
 
 </html>
