@@ -1,8 +1,8 @@
 import jieba
 from musicdata import db
+import math
+from heapq import nsmallest
 cur = db.cursor()
-
-
 
 # 获取详细的歌曲信息
 def get_song_details(song_ids):
@@ -195,7 +195,7 @@ def get_song_detail_by_id(song_id):
 
     return song_detail
 
-
+#主要歌手简介
 def get_artist_biography(artist_name):
     sql = """
     SELECT Biography
@@ -205,4 +205,50 @@ def get_artist_biography(artist_name):
     cur.execute(sql, (artist_name,))
     artist = cur.fetchone()
     return artist[0] if artist else "暂无简介"
+
+
+#情感
+def sql_emotionquery(target_arousal, target_valence, song_ids=None):
+    if song_ids:
+        # 如果有传入的 song_ids 列表，则只对这些歌曲进行情感排序
+        sql = """
+        SELECT SongID, Arousal, Valence
+        FROM songs
+        WHERE SongID IN %s
+        """
+        cur.execute(sql, (tuple(song_ids),))
+    else:
+        # 否则对所有歌曲进行情感排序
+        sql = """
+        SELECT SongID, Arousal, Valence
+        FROM songs
+        """
+        cur.execute(sql)
+
+    results = cur.fetchall()
+
+    # 计算每首歌的距离
+    distance_results = []
+    for result in results:
+        song_id, arousal, valence = result
+        distance = math.sqrt((target_arousal - arousal) ** 2 + (target_valence - valence) ** 2)
+        distance_results.append((distance, song_id))
+
+    # 找到距离最小的前 N 首歌
+    closest_songs = nsmallest(10, distance_results)
+
+    closest_song_ids = [song[1] for song in closest_songs]
+    print(f"Closest songs for Arousal={target_arousal}, Valence={target_valence}: {closest_song_ids}")
+    return closest_song_ids
+
+
+def emotionsearch_results(arousal, valence, song_ids=None):
+    # 确保 arousal 和 valence 是有效的浮点数
+    try:
+        arousal = float(arousal)
+        valence = float(valence)
+    except ValueError:
+        return []
+
+    return sql_emotionquery(arousal, valence, song_ids)
 

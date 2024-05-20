@@ -23,12 +23,11 @@ DROP TABLE IF EXISTS `collects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `collects` (
-  `UserID` char(5) NOT NULL,
+  `username` varchar(50) NOT NULL,
   `SongID` char(5) NOT NULL,
-  PRIMARY KEY (`UserID`,`SongID`),
   KEY `FK_collects_SongID_idx` (`SongID`),
-  CONSTRAINT `FK_collects_SongID` FOREIGN KEY (`SongID`) REFERENCES `songs` (`SongID`),
-  CONSTRAINT `FK_collects_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
+  KEY `FK_collects_UserID_idx` (`username`),
+  CONSTRAINT `FK_collects_SongID` FOREIGN KEY (`SongID`) REFERENCES `songs` (`SongID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-16 15:57:22
+-- Dump completed on 2024-05-17 20:47:53

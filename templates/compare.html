@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试页面</title>
+    <style>
+  .container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .result-panel {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }</style>
+</head>
+<body>
+    <form action="/test_search" method="get">
+        <input type="text" name="key_word" placeholder="输入关键词...">
+        <input type="submit" value="搜索">
+    </form>
+    <div class="container">
+  <div class="result-panel" id="tfidf-results">
+    <!-- 基于TF-IDF的检索结果将填充在这里 -->
+    <h2>TF-IDF Results</h2>
+      <p>检索时间{{time1}}s</p>
+     {% for search_result1 in search_results1 %}
+            <div>{{ search_result1 }}</div>
+        {% endfor %}
+  </div>
+  <div class="result-panel" id="whoosh-results">
+    <!-- 基于Whoosh的检索结果将填充在这里 -->
+    <h2>Whoosh Results</h2>
+    <p>检索时间{{time2}}s</p>
+        {% for search_result2 in search_results2 %}
+            <div>{{ search_result2 }}</div>
+        {% endfor %}
+  </div>
+</div>
+</body>
+</html>
