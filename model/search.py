@@ -13,7 +13,7 @@ def get_song_details(song_ids):
 
     # 获取歌曲的基本信息
     sql = f"""
-    SELECT s.SongID, s.SongName, s.Version, s.AlbumID, a.AlbumName
+    SELECT s.SongID, s.SongName, s.Version, s.AlbumID, a.AlbumName ,s.Duration
     FROM songs s
     JOIN albums a ON s.AlbumID = a.AlbumID
     WHERE s.SongID IN ({format_strings})
@@ -42,14 +42,15 @@ def get_song_details(song_ids):
     # 将艺术家信息添加到歌曲信息中
     detailed_results = []
     for song in songs:
-        song_id, song_name, version, album_id, album_name = song
+        song_id, song_name, version, album_id, album_name,duration = song
         artist_names = artist_dict.get(song_id, [])
         detailed_results.append({
             'SongID': song_id,
             'SongName': song_name,
             'Version': version,
             'AlbumName': album_name,
-            'Artists': artist_names
+            'Artists': artist_names,
+            'Duration':duration
         })
 
     return detailed_results
