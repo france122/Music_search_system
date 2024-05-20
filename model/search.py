@@ -62,18 +62,18 @@ def songsearch_results(keysong):
 
     for keyword in keywords:
         results = sql_query(keyword)
-        if results:
-            print(f"Results for '{keyword}': {results}")
+        # if results:
+        #     print(f"Results for '{keyword}': {results}")
         search_result.update(results)  # 对每个关键字进行查询，并更新结果集
 
-    print(f"Final combined results: {search_result}")
+    # print(f"Final combined results: {search_result}")
     return list(search_result)  # 将 set 转换为 list 以便返回
 def sql_query(keysong):
     sql = "select SongID from songs where SongName like '%%%%%s%%%%'" % keysong
-    print(f"Executing SQL: {sql}")
+
     cur.execute(sql)
     result = cur.fetchall()
-    print(f"Raw query results: {result}")
+    # print(f"Raw query results: {result}")
     return result  # 返回原始结果列表
 
 
@@ -84,11 +84,11 @@ def artistsearch_results(keyartist):
 
     for keyword in keywords:
         results = sql_artistquery(keyword)
-        if results:
-            print(f"Results for '{keyword}': {results}")
+        # if results:
+        #     print(f"Results for '{keyword}': {results}")
         search_result.update(results)  # 对每个关键字进行查询，并更新结果集
 
-    print(f"Final combined results: {search_result}")
+    # print(f"Final combined results: {search_result}")
     return list(search_result)  # 将 set 转换为 list 以便返回
 def sql_artistquery(key_artist):
     # 参数化的 SQL 查询，使用 JOIN 来从 performances 和 songs 表中获取相关的歌曲信息
@@ -102,7 +102,7 @@ def sql_artistquery(key_artist):
     # 使用 %s 作为占位符，之后传递一个包含 '%' + key_artist + '%' 的元组来安全地填充占位符
     cur.execute(sql, ('%' + key_artist + '%',))
     result = cur.fetchall()
-    print(f"Raw query results for artist '{key_artist}': {result}")
+    # print(f"Raw query results for artist '{key_artist}': {result}")
     return result  # 返回原始结果列表
 
 
@@ -113,11 +113,11 @@ def albumsearch_results(keyalbum):
 
     for keyword in keywords:
         results = sql_albumquery(keyword)
-        if results:
-            print(f"Results for '{keyword}': {results}")
+        # if results:
+        #     print(f"Results for '{keyword}': {results}")
         search_result.update(results)  # 对每个关键字进行查询，并更新结果集
 
-    print(f"Final combined results: {search_result}")
+    # print(f"Final combined results: {search_result}")
     return list(search_result)  # 将 set 转换为 list 以便返回
 def sql_albumquery(key_album):
     # 参数化的 SQL 查询，使用 JOIN 来从 albums 和 songs 表中获取相关的歌曲信息
@@ -130,7 +130,7 @@ def sql_albumquery(key_album):
     # 使用 %s 作为占位符，之后传递一个包含 '%' + key_album + '%' 的元组来安全地填充占位符
     cur.execute(sql, ('%' + key_album + '%',))
     result = cur.fetchall()
-    print(f"Raw query results for album '{key_album}': {result}")
+    # print(f"Raw query results for album '{key_album}': {result}")
     return result  # 返回原始结果列表
 
 
@@ -239,7 +239,7 @@ def sql_emotionquery(target_arousal, target_valence, song_ids=None):
     closest_songs = nsmallest(10, distance_results)
 
     closest_song_ids = [song[1] for song in closest_songs]
-    print(f"Closest songs for Arousal={target_arousal}, Valence={target_valence}: {closest_song_ids}")
+    # print(f"Closest songs for Arousal={target_arousal}, Valence={target_valence}: {closest_song_ids}")
     return closest_song_ids
 
 

@@ -36,6 +36,7 @@
             white-space: pre-wrap; /* 保持换行符 */
             word-wrap: break-word; /* 自动换行 */
             font-family: Arial, sans-serif;
+
         }
         .back-link {
             display: block;
@@ -60,11 +61,26 @@
             width: 100%;
             margin-top: 20px;
         }
+        .favorite-btn {
+            border: none;
+            cursor: pointer;
+            outline: none;
+            color: black;
+            font-size: 24px;
+        }
+
+        .favorite-btn:hover {
+            color: red;
+        }
     </style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg">
     <div class="container">
         <h1>歌曲详情</h1>
+        <form action="{{ url_for('add_to_favorites', song_id=song_detail.SongID) }}" method="post">
+    <button class="favorite-btn" id="addToFavoritesButton" type="submit">&#x2661;收藏</button>
+</form>
         <div class="song-details">
             {% if song_detail %}
                 <div class="cover">

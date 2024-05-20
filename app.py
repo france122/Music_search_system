@@ -5,12 +5,13 @@ from model.check_regist import add_user
 from model.search import songsearch_results, emotionsearch_results,artistsearch_results, albumsearch_results, versionsearch_results, get_song_details, get_song_detail_by_id, get_artist_biography
 import time
 from musicdata import db
+from flask import jsonify,session
 from model.whoosh_test import whoosh_search,whoosh_index
 from model.Jieba_query import inverted_index
 
 
 app = Flask(__name__)
-
+app.secret_key = '1234'
 @app.route('/')
 def index():
     return redirect(url_for('user_login'))
@@ -31,6 +32,7 @@ def user_login():
             login_message = "温馨提示：账号和密码是必填"
             return render_template('login.html', message=login_message)
         elif is_existed(username, password):
+            session['username'] = username
             return render_template('index.html', username=username)
         elif exist_user(username):
             login_message = "温馨提示：密码错误，请输入正确密码"
@@ -67,11 +69,9 @@ def test_search():
 def lyrics_search(keywords):
     start_time1 = time.time()
     search_results1 = model.Jieba_query.show_results(keywords, inverted_index)
-    print(search_results1)
     end_time1 = time.time()
     time1 = round(end_time1 - start_time1, 3)
     start_time2 = time.time()
-    whoosh_index()
     search_results2 = whoosh_search(keywords)
     end_time2 = time.time()
     time2 = round(end_time2 - start_time2, 3)
@@ -166,9 +166,9 @@ def search():
     detailed_results = get_song_details(final_results)
 
     # 调试输出
-    print("Search Parameters:", search_params)
-    print("Final Results:", final_results)
-    print("Detailed Results:", detailed_results)
+    # print("Search Parameters:", search_params)
+    # print("Final Results:", final_results)
+    # print("Detailed Results:", detailed_results)
 
     return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
@@ -196,13 +196,31 @@ def all_field_search_results(keyword):
 
     return all_results
 
-
 @app.route("/song_detail/<song_id>")
 def song_detail(song_id):
     song_detail = get_song_detail_by_id(song_id)
     if not song_detail:
         return render_template("songdetail.html", error="找不到该歌曲的详细信息。")
+    # print(song_detail)
     return render_template("songdetail.html", song_detail=song_detail)
+
+
+@app.route('/add_to_favorites/<song_id>', methods=['POST'])
+def add_to_favorites(song_id):
+    username = session['username']
+    if not username:
+        return jsonify({'message': 'Username is required'}), 400
+    try:
+        with db.cursor() as cursor:
+            sql = "INSERT INTO collects (username, SongID) VALUES (%s, %s)"
+            cursor.execute(sql, (username, song_id))
+        db.commit()  # 假设 db 是你的数据库连接对象
+    except Exception as e:
+        db.rollback()
+        return jsonify({'message': 'Failed to add song to collects: ' + str(e)}), 500
+    return jsonify({'message': 'Song added to collects'})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=6688)
