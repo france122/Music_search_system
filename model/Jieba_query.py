@@ -44,7 +44,7 @@ print("Inverted index has been saved to index.csv")
 from collections import defaultdict
 import math
 # 假设的文档总数
-N = 1331  # 有1331个文档
+N = 1298  # 有1298个文档
 # 计算IDF
 def calculate_idf(inverted_index, N):
     idf = {}

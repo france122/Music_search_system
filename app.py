@@ -15,6 +15,13 @@ app = Flask(__name__)
 def index():
     return redirect(url_for('user_login'))
 
+@app.route('/self')
+def self():
+    return render_template('self.html')
+@app.route('/index1')
+def index1():
+    return render_template('index.html')
+
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
     if request.method == 'POST':
@@ -24,7 +31,7 @@ def user_login():
             login_message = "温馨提示：账号和密码是必填"
             return render_template('login.html', message=login_message)
         elif is_existed(username, password):
-            return render_template('search.html', username=username)
+            return render_template('index.html', username=username)
         elif exist_user(username):
             login_message = "温馨提示：密码错误，请输入正确密码"
             return render_template('login.html', message=login_message)
@@ -46,7 +53,7 @@ def register():
             return render_template('register.html', message=login_message)
         else:
             add_user(request.form['username'], request.form['password'])
-            return render_template('search.html', username=username)
+            return render_template('index.html', username=username)
     return render_template('register.html')
 
 
@@ -95,7 +102,7 @@ def search():
     valence = request.args.get('valence')
 
     if not search_params and (arousal is None or valence is None):
-        return render_template("search.html", error="请至少填写一个搜索条件。")
+        return render_template("index.html", error="请至少填写一个搜索条件。")
 
     results_sets = []
 
@@ -153,7 +160,7 @@ def search():
     else:
         if not final_results:
             # 如果没有情感参数且没有其他条件的结果，返回空结果
-            return render_template("search.html", error="没有符合条件的结果。")
+            return render_template("index.html", error="没有符合条件的结果。")
 
     # 从后端获取详细的歌曲信息
     detailed_results = get_song_details(final_results)

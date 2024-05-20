@@ -1,24 +1,460 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi">
+    <meta charset="UTF-8">
     <title>歌词检索系统</title>
+    <style type="text/css">
+        .bg {
+            background-image: url("../static/background.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        em,
+        i {
+            font-style: normal;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            /* 水平分散对齐 */
+            align-items: center;
+            padding-left: 50px;
+            height: 100px;
+            /* background-color: #ffecdf; */
+            /* border-bottom: 2px solid #ec8e65; */
+        }
+
+        .nav ul {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav ul li {
+            margin-right: 25px;
+        }
+
+        .nav ul li a {
+            display: block;
+            height: 100px;
+            line-height: 100px;
+            font-size: 20px;
+            color: #050505;
+        }
+
+        .nav ul li a:hover {
+            border-bottom: 2px solid #ec500b;
+            color: #ec500b;
+        }
+
+        .login a {
+            font-size: 20px;
+            color: #050505;
+            text-decoration: none;
+            margin-right: 40px;
+        }
+
+        .login a:hover {
+            color: #ec500b;
+        }
+
+        .welcome_text {
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .welcome_text h2 {
+            display: inline-block;
+        }
+
+        .form-container {
+            margin: 20px auto;
+            width: 600px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            height: 45px;
+            padding: 0 10px;
+            border: 2px solid #ec500b;
+            border-radius: 5px;
+            flex: 1;
+            max-width: 260px;
+        }
+
+        select {
+            height: 45px;
+            border: 2px solid #ec500b;
+            border-radius: 5px;
+            font-size: 16px;
+            padding: 0 10px;
+        }
+
+        button {
+            height: 45px;
+            cursor: pointer;
+            background-color: #ec500b;
+            color: #ffffff;
+            font-size: 20px;
+            border: 2px solid #d44907;
+            transition: background-color 0.3s;
+            padding: 0 20px;
+            margin-right: 40px;
+            border-radius: 6px;
+
+        }
+
+        button:hover {
+            background-color: #d44907;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .add-lyric-button {
+            width: 100%;
+            background-color: #28a745;
+            border: 2px solid #218838;
+        }
+
+        .remove-lyric-button {
+            width: 100px;
+            background-color: #dc3545;
+            border: 2px solid #c82333;
+        }
+
+        .artist-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .artist-links a {
+            margin: 5px;
+            display: inline-block;
+            color: #ec500b;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .search-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .field-select,
+        .input-field,
+        .remove-button {
+            /* height: 40px; */
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .remove-button {
+            background-color: #ec500b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            /* 设置圆角值*/
+        }
+
+
+        .remove-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .box2 {
+            text-align: center;
+            background-color: #ffecdf;
+            padding: 20px 0;
+        }
+
+        .box2 li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .singer {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .singer a {
+            color: #000000;
+        }
+
+        .singer img {
+            height: 160px;
+            width: 180px;
+        }
+
+        .singer_name {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .introduction {
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .btm {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f2f2f2;
+        }
+    </style>
+
 </head>
 
-<body >
-    <div>
-    <h1>您好，{{ username }}，欢迎来到歌词检索系统</h1>
-        <a href="{{ url_for('user_login') }}">退出</a>
-        <br/>
-    </div>
-    <div align="center" style="margin-top: 100px">
-        <div >
-            <form action="{{ url_for('search') }}" method="get" >
-                <p><input type="text" style="font-size: 20px" placeholder="请输入您想要查询的歌名" name="key_word"></p>
-                <button type="submit" ></button>
-            </form>
+<body class="bg">
+    <div class="nav">
+        <ul>
+            <li><a href="{{ url_for('index1') }}">首页</a></li>
+            <li><a href="{{ url_for('self') }}">个人</a></li>
+            <li><a href="{{ url_for('compare') }}">测试</a></li>
+        </ul>
+        <div class="login">
+            <a href="{{ url_for('user_login') }}">退出</a>
         </div>
     </div>
+
+
+    <div class="welcome_text">
+        <h2>您好，{{ username }}，欢迎来到歌词检索系统</h2>
+        <br />
+    </div>
+
+    <div class="form-container">
+        <!-- 综合搜索表单 -->
+        <form action="{{ url_for('search') }}" method="get">
+            <div id="search-inputs">
+                <div class="search-field">
+                    <select name="fields[]" class="field-select" onchange="updateField(this)">
+                        <option value="key_all">全部字段</option>
+                        <option value="key_word">歌词</option>
+                        <option value="key_artist">歌手</option>
+                        <option value="key_song">歌名</option>
+                        <option value="key_album">专辑</option>
+                        <option value="key_version">版本</option>
+                    </select>
+                    <input type="text" style="font-size: 20px" placeholder="请输入您想要查询的内容" name="key_all">
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" onclick="addSearchField()">添加搜索框</button>
+                <button type="submit">搜&nbsp;索</button>
+            </div>
+        </form>
+
+
+        <script>
+            function addSearchField() {
+                const searchInputs = document.getElementById('search-inputs');
+
+                const searchFieldDiv = document.createElement('div');
+                searchFieldDiv.className = 'search-field';
+
+                const fieldSelect = document.createElement('select');
+                fieldSelect.name = 'fields[]';
+                fieldSelect.className = 'field-select';
+                fieldSelect.onchange = function () { updateField(this) };
+
+                const options = [
+                    { value: 'key_all', text: '全部字段' },
+                    { value: 'key_word', text: '歌词' },
+                    { value: 'key_artist', text: '歌手' },
+                    { value: 'key_song', text: '歌名' },
+                    { value: 'key_album', text: '专辑' },
+                    { value: 'key_version', text: '版本' }
+                ];
+
+                options.forEach(optionData => {
+                    const option = document.createElement('option');
+                    option.value = optionData.value;
+                    option.text = optionData.text;
+                    fieldSelect.appendChild(option);
+                });
+
+                searchFieldDiv.appendChild(fieldSelect);
+                addInputField(searchFieldDiv, 'key_all');
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.textContent = '删除';
+                removeButton.className = 'remove-button';
+                removeButton.onclick = function () { removeSearchField(this) };
+
+                searchFieldDiv.appendChild(removeButton);
+                searchInputs.appendChild(searchFieldDiv);
+            }
+
+            function removeSearchField(button) {
+                const searchFieldDiv = button.parentNode;
+                searchFieldDiv.remove();
+            }
+
+            function updateField(selectElement) {
+                const searchFieldDiv = selectElement.parentNode;
+                const selectedValue = selectElement.value;
+
+                // 移除旧的输入框或选择框
+                const oldInput = selectElement.nextElementSibling;
+                if (oldInput && oldInput.tagName !== 'BUTTON') {
+                    oldInput.remove();
+                }
+
+                addInputField(searchFieldDiv, selectedValue);
+            }
+
+            function addInputField(parent, fieldType) {
+                let inputField;
+                if (fieldType === 'key_version') {
+                    inputField = document.createElement('select');
+                    inputField.name = fieldType;
+                    inputField.className = 'input-field';
+
+                    const versionOptions = [
+                        { value: '', text: '不限版本' },
+                        { value: 'Live', text: 'Live' },
+                        { value: 'DJ', text: 'DJ' },
+                        { value: '广场舞版', text: '广场舞版' },
+                        { value: '普通话版', text: '普通话版' }
+                    ];
+
+                    versionOptions.forEach(optionData => {
+                        const option = document.createElement('option');
+                        option.value = optionData.value;
+                        option.text = optionData.text;
+                        inputField.appendChild(option);
+                    });
+                } else {
+                    inputField = document.createElement('input');
+                    inputField.type = 'text';
+                    inputField.className = 'input-field';
+                    inputField.name = fieldType;
+
+                    switch (fieldType) {
+                        case 'key_all':
+                            inputField.placeholder = '请输入您想要查询的内容';
+                            break;
+                        case 'key_word':
+                            inputField.placeholder = '请输入您想要查询的歌词';
+                            break;
+                        case 'key_artist':
+                            inputField.placeholder = '请输入您想要查询的歌手';
+                            break;
+                        case 'key_song':
+                            inputField.placeholder = '请输入您想要查询的歌名';
+                            break;
+                        case 'key_album':
+                            inputField.placeholder = '请输入您想要查询的专辑';
+                            break;
+                    }
+                }
+
+                const removeButton = parent.querySelector('.remove-button');
+                parent.insertBefore(inputField, removeButton);
+            }
+        </script>
+
+    </div>
+    <div class="box2">
+        <ul>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '周杰伦'}) }}"
+                        target="_blank">
+                        <img src="../static/image/artist1.jpg"
+                            alt="歌手图片">
+                        <div class="singer_name">周杰伦</div>
+                        <p class="introduction">Jay Chou</p>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '凤凰传奇'}) }}"
+                        target="_blank">
+                        <img src="https://bkimg.cdn.bcebos.com/pic/8ad4b31c8701a18b87d61a4f207a100828381f30502f?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,h_336"
+                            alt="歌手图片">
+                        <div class="singer_name">凤凰传奇</div>
+                        <p class="introduction">国民组合 老少皆宜</p>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '苏打绿'}) }}"
+                        target="_blank">
+                        <img src=https://th.bing.com/th/id/R.9b3c54a1e22ac9f388a55ec60135e699?rik=BW1gZb5Y%2fePAzw&riu=http%3a%2f%2fi4.hunantv.com%2fp1%2f20140317%2f1149579792.jpg&ehk=Cq4twLbjkUveOepZiRyssQLt6acldl32JaFYRxZ566Y%3d&risl=&pid=ImgRaw&r=0
+                            alt="歌手图片">
+                        <div class="singer_name">苏打绿</div>
+                        <p class="introduction">文字介绍</p>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '张学友'}) }}"
+                        target="_blank">
+                        <img src=https://th.bing.com/th/id/OIP.UG9Y5Qk2tq6k57GfXVv52QHaJQ?w=184&h=230&c=7&r=0&o=5&dpr=1.5&pid=1.7
+                            alt="歌手图片">
+                        <div class="singer_name">张学友</div>
+                        <p class="introduction">文字介绍</p>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="singer">
+                    <a href="{{ url_for('search', **{'fields[]': 'key_artist', 'key_artist': '五月天'}) }}"
+                        target="_blank">
+                        <img src=https://th.bing.com/th/id/OIP.0S9B4w-H2b-hz9tmgKULnQHaEK?w=321&h=180&c=7&r=0&o=5&dpr=1.5&pid=1.7
+                            alt="歌手图片">
+                        <div class="singer_name">五月天</div>
+                        <p class="introduction">文字介绍</p>
+                    </a>
+                </div>
+            </li>
+
+            <!-- Add more singers as needed -->
+        </ul>
+    </div>
+    <footer class="btm">
+        copyright@2024 京ICP12345678 技术支持：第三小组
+    </footer>
+
+
 </body>
+
 </html>
