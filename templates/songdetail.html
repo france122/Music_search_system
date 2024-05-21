@@ -118,10 +118,10 @@ nav a {
                     <p>歌词:</p>
                     <pre>{{ song_detail['Lyrics'] }}</pre>
                 </div>
-                <audio class="audio-player" controls>
-                    <source src="{{ url_for('static', filename='source/mp3/' + song_detail['SongID'] + '.mp3') }}" type="audio/mpeg">
-                    您的浏览器不支持音频播放。
-                </audio>
+               <audio class="audio-player" controls>
+    <source src="{{ url_for('get_audio', song_id=song_detail['SongID']) }}" type="audio/mpeg">
+    您的浏览器不支持音频播放。
+</audio>
             {% else %}
                 <p>未找到该歌曲的详细信息。</p>
             {% endif %}
