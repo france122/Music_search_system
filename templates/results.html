@@ -323,6 +323,9 @@
 <body class="bg">
     <div>
         <h1 align="center">检索结果</h1>
+    <div style="text-align: right;">
+    <a style="color:#ec500b;" href="{{ url_for('index1') }}">返回搜索页面</a>
+</div>
         <div>
             {% if artist_biography %}
                 <div class="artist-biography">
@@ -363,9 +366,7 @@
             {% endfor %}
 
         </div>
-        <div style="text-align: center;margin-top: 170px">
-            <a style="color:black;" href="{{ url_for('search') }}">返回搜索页面</a>
-        </div>
+
     </div>
 </body>
 </html>

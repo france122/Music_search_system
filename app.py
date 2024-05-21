@@ -17,9 +17,7 @@ def index():
     return redirect(url_for('user_login'))
 
 
-@app.route('/index1')
-def index1():
-    return render_template('index.html')
+
 
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
@@ -201,6 +199,11 @@ def song_detail(song_id):
         return render_template("songdetail.html", error="找不到该歌曲的详细信息。")
     # print(song_detail)
     return render_template("songdetail.html", song_detail=song_detail)
+
+@app.route('/index1')
+def index1():
+    username=session["username"]
+    return render_template('index.html',username=username)
 
 @app.route("/self")
 def self():
