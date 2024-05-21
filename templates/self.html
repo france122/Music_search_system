@@ -254,8 +254,7 @@
             /* 去除列表项默认样式 */
             display: flex;
             /* 使用 Flex 布局 */
-            justify-content: space-between;
-            /* 列之间的空间平均分配 */
+
         }
 
         .list_header li {
@@ -281,7 +280,7 @@
         }
 
         .width_f_li {
-            width: 25%;
+            width: 30%;
             /* 歌曲名列宽度 */
         }
 
@@ -296,7 +295,7 @@
         }
 
         .width_time_li {
-            width: 12%;
+            width: 13%;
             /* 时长列宽度 */
         }
 
@@ -512,7 +511,7 @@ button {
 
         <div id="main">
             <div>
-            <ul class="list_content">
+            <ul class="list_header">
             <li class="width_f_li song_name_li">歌名
             </li>
             <li class="width_singer_li">
@@ -534,7 +533,7 @@ button {
 
             {% for collect_result in collect_results %}
                 <a  href="{{ url_for('song_detail', song_id=collect_result['SongID']) }}"  id="test">
-                <ul class="list_content">
+                <ul class="list_header">
                 <li class="width_f_li song_name_li">{{ collect_result['SongName'] }}</li>
                 <li class="width_singer_li">{{ collect_result['Artists']|join(', ')}}</li>
                 <li class="width_album_li">{{ collect_result['AlbumName'] }}</li>
