@@ -212,7 +212,7 @@ def self():
     collect_results_songID= cursor.fetchall()
     collect_results = get_song_details(collect_results_songID)
 
-    print(collect_results)
+    # print(collect_results)
     return render_template("self.html", collect_results=collect_results)
 
 
@@ -230,6 +230,24 @@ def add_to_favorites(song_id):
         db.rollback()
         return jsonify({'message': 'Failed to add song to collects: ' + str(e)}), 500
     return jsonify({'message': 'Song added to collects'})
+
+@app.route('/remove_from_favorites/<song_id>', methods=['POST'])
+def remove_from_favorites(song_id):
+    username = session['username']
+    if not username:
+        return jsonify({'message': 'Username is required'}), 400
+    try:
+        with db.cursor() as cursor:
+            sql = "DELETE FROM collects WHERE username=%s  AND SongID = %s"
+            cursor.execute(sql, (username, song_id))
+
+        db.commit()  # 假设 db 是你的数据库连接对象
+    except Exception as e:
+        db.rollback()
+        return jsonify({'message': 'Failed to remove song from collects: ' + str(e)}), 500
+    return jsonify({'message': 'Song has been removed from collects'})
+
+
 
 
 

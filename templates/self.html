@@ -540,7 +540,9 @@ button {
                 <li class="width_album_li">{{ collect_result['AlbumName'] }}</li>
                 <li class="width_time_li">{{ collect_result['Version']}}</li>
                 <li class="width_time_li">{{ collect_result['Duration']}}</li>
-                <li class="width_time_li"><button class="favorite-btn" id="CancelFavoritesButton" type="submit">&#x2661;取消收藏</button></li>
+        <form action="{{ url_for('remove_from_favorites', song_id=collect_result.SongID) }}" method="post">
+                <li class="width_time_li"><button class="favorite-btn" id="RemovefromFavoritesButton" type="submit">&#x2661;取消收藏</button></li>
+        </form>
                 </ul></a>
 
             {% endfor %}
