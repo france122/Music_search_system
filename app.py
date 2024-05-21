@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify, session
+from flask import Flask, render_template, redirect, url_for, request, jsonify, session,send_file
 import model.search
 from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
@@ -6,6 +6,7 @@ from model.search import (songsearch_results, emotionsearch_results, artistsearc
                           albumsearch_results, versionsearch_results, get_song_details,
                           get_song_detail_by_id, get_artist_biography)
 import time
+import os
 from musicdata import db, cursor
 from model.whoosh_test import whoosh_search
 from model.Jieba_query import inverted_index
@@ -263,6 +264,14 @@ def remove_from_favorites(song_id):
         db.rollback()
         return jsonify({'message': 'Failed to remove song from collects: ' + str(e)}), 500
     return jsonify({'message': 'Song has been removed from collects'})
+
+@app.route('/audio/<song_id>')
+def get_audio(song_id):
+    audio_file_path = os.path.join(app.root_path, 'static/source/mp3', f'{song_id}.mp3')
+    if os.path.exists(audio_file_path):
+        return send_file(audio_file_path)
+    else:
+        return "Audio file not found", 404
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=6688)
