@@ -282,7 +282,7 @@
     <div class="main-content">
         <div class="form-container">
             <!-- 综合搜索表单 -->
-            <form action="{{ url_for('search') }}" method="get">
+            <form action="{{ url_for('search') }}" method="post">
                 <div id="search-inputs">
                     <div class="search-field">
                         <select name="fields[]" class="field-select" onchange="updateField(this)">
@@ -519,6 +519,8 @@
     <footer class="btm">
         @信息存储与检索课程 第三小组
     </footer>
+
+
 </body>
 
 </html>
