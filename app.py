@@ -76,92 +76,111 @@ def lyrics_search(keywords):
 def compare():
     return render_template('compare.html')
 
-@app.route("/search", methods=["POST"])
+@app.route("/search", methods=["GET", "POST"])
 def search():
-    search_params = {}
-    artist_biography = None
-    major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
+    if request.method == "POST":
+        # 处理表单提交的 POST 请求
+        search_params = {}
+        artist_biography = None
+        major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
 
-    # 获取搜索参数
-    fields = request.form.getlist('fields[]')
-    for field in fields:
-        if field and request.form.get(field):
-            search_params[field] = request.form.get(field).strip()
-            if field == 'key_artist' and search_params[field] in major_artists:
-                artist_biography = get_artist_biography(search_params[field])
+        # 获取搜索参数
+        fields = request.form.getlist('fields[]')
+        for field in fields:
+            if field and request.form.get(field):
+                search_params[field] = request.form.get(field).strip()
+                if field == 'key_artist' and search_params[field] in major_artists:
+                    artist_biography = get_artist_biography(search_params[field])
 
-    arousal = request.form.get('arousal')
-    valence = request.form.get('valence')
+        arousal = request.form.get('arousal')
+        valence = request.form.get('valence')
 
-    if not search_params and (arousal is None or valence is None):
-        return render_template("index.html", error="请至少填写一个搜索条件。")
+        if not search_params and (arousal is None or valence is None):
+            return render_template("index.html", error="请至少填写一个搜索条件。")
 
-    results_sets = []
+        results_sets = []
 
-    # 全字段搜索
-    if 'key_all' in search_params and search_params['key_all']:
-        all_results = all_field_search_results(search_params['key_all'])
-        if all_results:
-            results_sets.append(all_results)
+        # 全字段搜索
+        if 'key_all' in search_params and search_params['key_all']:
+            all_results = all_field_search_results(search_params['key_all'])
+            if all_results:
+                results_sets.append(all_results)
 
-    # 处理各个字段的搜索
-    for field, value in search_params.items():
-        if field == 'key_word':
-            word_results_sets = []
-            for keyword in value.split():
-                if keyword.strip():  # 只处理非空关键词
-                    search_results = model.Jieba_query.show_results(keyword.split(), inverted_index)
-                    word_results_sets.append(set(search_results))
-            if word_results_sets:
-                combined_word_results = set.union(*word_results_sets)
-                if combined_word_results:  # 只添加非空集合
-                    results_sets.append(combined_word_results)
-        elif field == 'key_artist':
-            artist_results = set(artistsearch_results(value))
-            if artist_results:  # 只添加非空集合
-                results_sets.append(artist_results)
-        elif field == 'key_song':
-            song_results = set(songsearch_results(value))
-            if song_results:  # 只添加非空集合
-                results_sets.append(song_results)
-        elif field == 'key_album':
-            album_results = set(albumsearch_results(value))
-            if album_results:  # 只添加非空集合
-                results_sets.append(album_results)
-        elif field == 'key_version':
-            version_results = set(versionsearch_results(value))
-            if version_results:  # 只添加非空集合
-                results_sets.append(version_results)
+        # 处理各个字段的搜索
+        for field, value in search_params.items():
+            if field == 'key_word':
+                word_results_sets = []
+                for keyword in value.split():
+                    if keyword.strip():  # 只处理非空关键词
+                        search_results = model.Jieba_query.show_results(keyword.split(), inverted_index)
+                        word_results_sets.append(set(search_results))
+                if word_results_sets:
+                    combined_word_results = set.union(*word_results_sets)
+                    if combined_word_results:  # 只添加非空集合
+                        results_sets.append(combined_word_results)
+            elif field == 'key_artist':
+                artist_results = set(artistsearch_results(value))
+                if artist_results:  # 只添加非空集合
+                    results_sets.append(artist_results)
+            elif field == 'key_song':
+                song_results = set(songsearch_results(value))
+                if song_results:  # 只添加非空集合
+                    results_sets.append(song_results)
+            elif field == 'key_album':
+                album_results = set(albumsearch_results(value))
+                if album_results:  # 只添加非空集合
+                    results_sets.append(album_results)
+            elif field == 'key_version':
+                version_results = set(versionsearch_results(value))
+                if version_results:  # 只添加非空集合
+                    results_sets.append(version_results)
 
-    # 取交集
-    if results_sets:
-        final_results = results_sets[0]
-        for result_set in results_sets[1:]:
-            final_results &= result_set
-    else:
-        final_results = set()
-
-    # 添加情感搜索逻辑
-    if arousal and valence:
-        if final_results:
-            # 如果有其他检索条件的结果，对这些结果进行情感排序
-            final_results = emotionsearch_results(arousal, valence, list(final_results))
+        # 取交集
+        if results_sets:
+            final_results = results_sets[0]
+            for result_set in results_sets[1:]:
+                final_results &= result_set
         else:
-            # 如果没有其他检索条件的结果，进行全表情感搜索
-            final_results = emotionsearch_results(arousal, valence)
-    else:
-        if not final_results:
-            # 如果没有情感参数且没有其他条件的结果，返回空结果
+            final_results = set()
+
+        # 添加情感搜索逻辑
+        if arousal and valence:
+            if final_results:
+                # 如果有其他检索条件的结果，对这些结果进行情感排序
+                final_results = emotionsearch_results(arousal, valence, list(final_results))
+            else:
+                # 如果没有其他检索条件的结果，进行全表情感搜索
+                final_results = emotionsearch_results(arousal, valence)
+        else:
+            if not final_results:
+                # 如果没有情感参数且没有其他条件的结果，返回空结果
+                return render_template("index.html", error="没有符合条件的结果。")
+
+        # 从后端获取详细的歌曲信息
+        detailed_results = get_song_details(final_results)
+
+        # 使用 session 存储搜索结果
+        session['detailed_results'] = detailed_results
+        session['artist_biography'] = artist_biography
+
+        return redirect(url_for('results'))
+
+    elif request.method == "GET":
+        # 处理点击歌手链接的 GET 请求
+        artist = request.args.get('key_artist')
+        if not artist:
+            return render_template("index.html", error="未指定歌手。")
+
+        artist_biography = get_artist_biography(artist)
+
+        results_sets = set(artistsearch_results(artist))
+
+        if not results_sets:
             return render_template("index.html", error="没有符合条件的结果。")
 
-    # 从后端获取详细的歌曲信息
-    detailed_results = get_song_details(final_results)
+        detailed_results = get_song_details(results_sets)
 
-    # 使用 session 存储搜索结果
-    session['detailed_results'] = detailed_results
-    session['artist_biography'] = artist_biography
-
-    return redirect(url_for('results'))
+        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
 @app.route('/results')
 def results():
