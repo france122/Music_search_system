@@ -80,7 +80,7 @@ def compare():
 @app.route("/search", methods=["GET", "POST"])
 def search():
     if request.method == "POST":
-        # 处理表单提交的 POST 请求
+        print(request.form)  # 打印表单提交的数据
         search_params = {}
         artist_biography = None
         major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
@@ -91,7 +91,9 @@ def search():
             if field and request.form.get(field):
                 search_params[field] = request.form.get(field).strip()
                 if field == 'key_artist' and search_params[field] in major_artists:
+                    print(f"Searching for major artist: {search_params[field]}")
                     artist_biography = get_artist_biography(search_params[field])
+                    print(f"Artist biography: {artist_biography}")
 
         arousal = request.form.get('arousal')
         valence = request.form.get('valence')
@@ -164,7 +166,7 @@ def search():
         session['detailed_results'] = detailed_results
         session['artist_biography'] = artist_biography
 
-        return redirect(url_for('results'))
+        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
     elif request.method == "GET":
         # 处理点击歌手链接的 GET 请求
@@ -173,6 +175,7 @@ def search():
             return render_template("index.html", error="未指定歌手。")
 
         artist_biography = get_artist_biography(artist)
+        print(f"GET request for artist biography: {artist_biography}")
 
         results_sets = set(artistsearch_results(artist))
 
@@ -182,12 +185,6 @@ def search():
         detailed_results = get_song_details(results_sets)
 
         return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
-
-@app.route('/results')
-def results():
-    detailed_results = session.get('detailed_results', [])
-    artist_biography = session.get('artist_biography', None)
-    return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
 def all_field_search_results(keyword):
     # 对各个字段分别进行搜索并转换为集合
