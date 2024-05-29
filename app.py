@@ -170,7 +170,9 @@ def search():
                 for keyword in value.split():
                     if keyword.strip():
                         if len(keyword) <= 4:
-                            (search_results,tfidf_scores) = model.Jieba_query.show_results([keyword], inverted_index)
+
+                            seg_list = jieba.lcut_for_search(keyword)
+                            (search_results,tfidf_scores) = model.Jieba_query.show_results(seg_list, inverted_index)
                             word_results_sets.append(set(result[0] for result in search_results))
                         else:
                             (search_results,similar_scores_and_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
@@ -283,7 +285,8 @@ def all_field_search_results(keyword):
     for keyword_01 in keyword.split():
         #print("___________________", len(keyword_01))
         if len(keyword_01) <= 4:
-            (result1,tfidf_scores) = model.Jieba_query.show_results([keyword_01], inverted_index)
+            seg_list = jieba.lcut_for_search(key_word_01)
+            (result1,tfidf_scores) = model.Jieba_query.show_results(seg_list, inverted_index)
             for result in result1:
                 word_results_1.append(result[0])
                 # print("___________", result[0])
