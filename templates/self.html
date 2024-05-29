@@ -497,6 +497,36 @@ button {
     margin-left: 80px;
 }
     </style>
+
+<script>
+    async function removeFromFavorites(songId) {
+        try {
+            const response = await fetch(`/remove_from_favorites/${songId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 204) {
+                alert('歌曲已成功移除出收藏夹！');
+            } else {
+                const result = await response.json();
+                alert('取消收藏失败: ' + result.message);
+            }
+        } catch (error) {
+            alert('错误: ' + error.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const removeButton = document.getElementById('remove-from-favorites-button');
+        removeButton.addEventListener('click', () => {
+            const songId = removeButton.dataset.songId;
+            removeFromFavorites(songId);
+        });
+    });
+</script>
 </head>
 
 <body>
@@ -539,9 +569,11 @@ button {
                 <li class="width_album_li">{{ collect_result['AlbumName'] }}</li>
                 <li class="width_time_li">{{ collect_result['Version']}}</li>
                 <li class="width_time_li">{{ collect_result['Duration']}}</li>
-        <form action="{{ url_for('remove_from_favorites', song_id=collect_result.SongID) }}" method="post">
-                <li class="width_time_li"><button class="favorite-btn" id="RemovefromFavoritesButton" type="submit">&#x2661;取消收藏</button></li>
-        </form>
+
+<!--        <form action="{{ url_for('remove_from_favorites', song_id=collect_result.SongID) }}" method="post">-->
+<!--                <li class="width_time_li"><button class="favorite-btn" id="RemovefromFavoritesButton" type="submit">&#x2661;取消收藏</button></li>-->
+<!--        </form>-->
+                <div><button id="remove-from-favorites-button" data-song-id="{{collect_result.SongID}}">取消收藏</button></div>
                 </ul></a>
 
             {% endfor %}
