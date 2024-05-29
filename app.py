@@ -5,6 +5,7 @@ from model.check_regist import add_user
 from model.search import (songsearch_results, emotionsearch_results, artistsearch_results,
                           albumsearch_results, versionsearch_results, get_song_details,
                           get_song_detail_by_id, get_artist_biography)
+import jieba
 import time
 import os
 from musicdata import db, cursor
@@ -55,9 +56,13 @@ def register():
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
-    key_word = request.args.get('key_word')  # 从GET请求中获取key_word
-    key_word = key_word.split()
-    search_results1, search_results2, time1, time2 = lyrics_search(key_word)
+    key_words = request.args.get('key_words')  # 从GET请求中获取key_word
+    key_words = key_words.split()
+    search_word=[]
+    for key_word in key_words:
+        seg_list = jieba.lcut_for_search(key_word)
+        search_word.extend(seg_list)
+    search_results1, search_results2, time1, time2 = lyrics_search(search_word)
     return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2,search_results1_len=len(search_results1),search_results2_len=len(search_results2))
 
 def lyrics_search(keywords):

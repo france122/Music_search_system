@@ -27,7 +27,7 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
         for word in seg_list:
             if len(word) > 1:  # 过滤掉单个字符的词（可选）
                 inverted_index[word][song_id] += 1
-
+'''
                 # 将倒排索引写入新的CSV文件
     # 写入标题行
     writer.writerow(['Word', 'Song IDs and Frequencies'])
@@ -40,7 +40,7 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
         writer.writerow([word, song_ids_with_freq])
 
 print("Inverted index has been saved to index.csv")
-
+'''
 from collections import defaultdict
 import math
 # 假设的文档总数
