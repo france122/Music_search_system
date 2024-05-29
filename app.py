@@ -327,20 +327,35 @@ def self():
     collect_results = get_song_details(collect_results_songID)
     return render_template("self.html", collect_results=collect_results)
 
+# @app.route('/add_to_favorites/<song_id>', methods=['POST'])
+# def add_to_favorites(song_id):
+#     username = session['username']
+#     if not username:
+#         return jsonify({'message': 'Username is required'}), 400
+#     try:
+#         with db.cursor() as cursor:
+#             sql = "INSERT INTO collects (username, SongID) VALUES (%s, %s)"
+#             cursor.execute(sql, (username, song_id))
+#         db.commit()  # 假设 db 是你的数据库连接对象
+#     except Exception as e:
+#         db.rollback()
+#         return jsonify({'message': 'Failed to add song to collects: ' + str(e)}), 500
+#     return jsonify({'message': 'Song added to collects'})
+
 @app.route('/add_to_favorites/<song_id>', methods=['POST'])
 def add_to_favorites(song_id):
     username = session['username']
     if not username:
-        return jsonify({'message': 'Username is required'}), 400
+        return jsonify({'message': '需要用户名'}), 400
     try:
         with db.cursor() as cursor:
             sql = "INSERT INTO collects (username, SongID) VALUES (%s, %s)"
             cursor.execute(sql, (username, song_id))
-        db.commit()  # 假设 db 是你的数据库连接对象
+        db.commit()
     except Exception as e:
         db.rollback()
-        return jsonify({'message': 'Failed to add song to collects: ' + str(e)}), 500
-    return jsonify({'message': 'Song added to collects'})
+        return jsonify({'message': '添加歌曲到收藏失败: ' + str(e)}), 500
+    return '', 204  # 无内容状态码
 
 @app.route('/remove_from_favorites/<song_id>', methods=['POST'])
 def remove_from_favorites(song_id):
@@ -351,12 +366,11 @@ def remove_from_favorites(song_id):
         with db.cursor() as cursor:
             sql = "DELETE FROM collects WHERE username=%s AND SongID = %s"
             cursor.execute(sql, (username, song_id))
-
         db.commit()  # 假设 db 是你的数据库连接对象
     except Exception as e:
         db.rollback()
         return jsonify({'message': 'Failed to remove song from collects: ' + str(e)}), 500
-    return jsonify({'message': 'Song has been removed from collects'})
+    return '', 204  # 无内容状态码
 
 @app.route('/audio/<song_id>')
 def get_audio(song_id):

@@ -89,7 +89,37 @@ nav a {
 
 }
     </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<script>
+    async function addToFavorites(songId) {
+        try {
+            const response = await fetch(`/add_to_favorites/${songId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 204) {
+                alert('歌曲已成功添加到收藏夹！');
+            } else {
+                const result = await response.json();
+                alert('添加歌曲到收藏夹失败: ' + result.message);
+            }
+        } catch (error) {
+            alert('错误: ' + error.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const addButton = document.getElementById('add-to-favorites-button');
+        addButton.addEventListener('click', () => {
+            const songId = addButton.dataset.songId;
+            addToFavorites(songId);
+        });
+    });
+</script>
+
 </head>
 <body class="bg">
         <nav>
@@ -101,10 +131,11 @@ nav a {
         </nav>
     <div class="container">
         <h1>歌曲详情</h1>
+        <button id="add-to-favorites-button" data-song-id="{{song_detail.SongID}}">添加到收藏夹</button>
 
-        <form action="{{ url_for('add_to_favorites', song_id=song_detail.SongID) }}" method="post">
-    <button class="favorite-btn" id="addToFavoritesButton" type="submit">&#x2661;收藏</button>
-</form>
+<!--        <form action="{{ url_for('add_to_favorites', song_id=song_detail.SongID) }}" method="post">-->
+<!--    <button class="favorite-btn" id="addToFavoritesButton" type="submit">&#x2661;收藏</button>-->
+<!--</form>-->
         <div class="song-details">
             {% if song_detail %}
                 <div class="cover">
@@ -128,5 +159,6 @@ nav a {
         </div>
         <a class="back-link" href="{{ url_for('search') }}">返回搜索页面</a>
     </div>
+
 </body>
 </html>
