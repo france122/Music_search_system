@@ -349,14 +349,18 @@
         </div>
 
         <!-- 二次检索框 -->
-        <div class="search" style="margin-top: 20px;">
-            <div class="search-container">
-                <form action="{{ url_for('refine') }}" method="post">
-                    <input type="search" id="secondary-search-input" name="secondary_search_query" placeholder="在结果中搜索...">
-                    <button type="submit">搜索</button>
-                </form>
-            </div>
-        </div>
+<div class="search" style="margin-top: 20px;">
+    <div class="search-container">
+        <form action="{{ url_for('search') }}" method="post">
+            <input type="search" id="secondary-search-input" name="secondary_search_query" placeholder="在结果中搜索...">
+            {% for song_id in previous_song_ids %}
+                <input type="hidden" name="previous_song_ids" value="{{ song_id }}">
+            {% endfor %}
+            <button type="submit">搜索</button>
+        </form>
+    </div>
+</div>
+
 
         <div class="song_list">
             <ul class="list_header">
