@@ -14,7 +14,7 @@ from model.Jieba_query import inverted_index
 from model.search_similarmeasurement import show_results_similarity
 app = Flask(__name__)
 app.secret_key = '1234'
-
+import pandas as pd
 @app.route('/')
 def index():
     return redirect(url_for('user_login'))
@@ -72,7 +72,7 @@ def test_search():
         length2=30
 
     start_time3 = time.time()
-    (search_results3,results_detail_similarity) = model.search_similarmeasurement.show_results_similarity(raw_key_words)
+    (search_results3,similar_scores_and_highlights) = model.search_similarmeasurement.show_results_similarity(raw_key_words)
     end_time3 = time.time()
     time3 = round(end_time3 - start_time3, 3)
     detailed_results3 = get_song_details(search_results3)
@@ -80,7 +80,7 @@ def test_search():
 
 def lyrics_search(keywords):
     start_time1 = time.time()
-    search_results1 = model.Jieba_query.show_results(keywords, inverted_index)
+    (search_results1,tfidf_scores) = model.Jieba_query.show_results(keywords, inverted_index)
     end_time1 = time.time()
     time1 = round(end_time1 - start_time1, 3)
     start_time2 = time.time()
@@ -98,6 +98,7 @@ def compare():
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
+
     if request.method == "POST":
         print(request.form)  # 打印表单提交的数据
 
@@ -127,14 +128,16 @@ def search():
                 return render_template("results.html", error="没有符合条件的结果。", search_results=[])
 
             song_ids = [(song_id,) for song_id in refined_song_ids]
+            search_results_len = len(refined_song_ids)
             print(f"Song IDs for get_song_details: {song_ids}")
             detailed_results = get_song_details(song_ids)
             print(f"Detailed results: {detailed_results}")
 
-            return render_template("results.html", search_results=detailed_results, previous_song_ids=list(refined_song_ids))
+            return render_template("results.html", search_results=detailed_results, previous_song_ids=list(refined_song_ids),search_results_len = search_results_len)
 
         # 初次检索逻辑
         search_params = {}
+
         artist_biography = None
         major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
 
@@ -154,9 +157,10 @@ def search():
             return render_template("index.html", error="请至少填写一个搜索条件。")
 
         results_sets = []
-
+        tfidf_scores = []
+        similar_scores_and_highlights = []
         if 'key_all' in search_params and search_params['key_all']:
-            all_results = all_field_search_results(search_params['key_all'])
+            (all_results,tfidf_scores,similar_scores_and_highlights ) = all_field_search_results(search_params['key_all'])
             if all_results:
                 results_sets.append(set(all_results))
 
@@ -166,12 +170,13 @@ def search():
                 for keyword in value.split():
                     if keyword.strip():
                         if len(keyword) <= 4:
-                            search_results = model.Jieba_query.show_results([keyword], inverted_index)
+                            (search_results,tfidf_scores) = model.Jieba_query.show_results([keyword], inverted_index)
                             word_results_sets.append(set(result[0] for result in search_results))
                         else:
-                            (search_results,lyrics_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
+                            (search_results,similar_scores_and_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
                             word_results_sets.append(set(result[0] for result in search_results))
                 if word_results_sets:
+                    lyrics_yesorno = 1
                     combined_word_results = set.union(*word_results_sets)
                     if combined_word_results:
                         results_sets.append(combined_word_results)
@@ -192,10 +197,10 @@ def search():
                 version_results = set(result[0] for result in versionsearch_results(value))
                 if version_results:
                     results_sets.append(version_results)
-            elif field == 'key_lyrics':
-                lyrics_results = lyrics_search_results(value)
-                if lyrics_results:
-                    results_sets.append(set(result[0] for result in lyrics_results))
+            #elif field == 'key_lyrics':
+            #    lyrics_results = lyrics_search_results(value)
+            #    if lyrics_results:
+            #        results_sets.append(set(result[0] for result in lyrics_results))
         if results_sets:
             final_results = results_sets[0]
             for result_set in results_sets[1:]:
@@ -212,19 +217,45 @@ def search():
             else:
                 final_results = emotionsearch_results(arousal, valence)
         else:
-            if 'key_lyrics' in search_params and final_results:
-                lyrics_results = lyrics_search_results(search_params['key_lyrics'])
-                final_results = [result[0] for result in lyrics_results if result[0] in final_results]
-            elif not final_results:
-                return render_template("index.html", error="没有符合条件的结果。")
+            if 'key_word' in search_params or 'key_all' in search_params:
+                if final_results:
+                    songid_pd = pd.DataFrame(final_results,columns=['SongID'])
+                    tfidf_scores_pd = pd.DataFrame(tfidf_scores,columns=['SongID','Tfidf'])
+                    similar_scores_and_pd = pd.DataFrame(similar_scores_and_highlights,columns=['SongID','Lyrics','Similar'])
+                    score_prepare = pd.merge(songid_pd,tfidf_scores_pd,on="SongID",how="outer")
+                    score = pd.merge(score_prepare, similar_scores_and_pd,on="SongID",how="outer")
+                    score.fillna(value=10,inplace=True)
+                    #print(score['Tfidf'])
+                    score['Score'] = score['Tfidf'] + score['Similar']
+                    score_sorted = score.sort_values(by='Score',ascending=False)
+                    score_sorted = score_sorted.reset_index(drop=True)
+                    print(score_sorted)
+                    #print("******************",type(myfinal_results))
+                    myfinal_results = []
+                    for i in range(min(score_sorted.shape[0],20)):
+                        #print("*****",score_sorted.size)
+                        songid = score_sorted.loc[i, 'SongID']
+                        #print(i, score_sorted.shape[0], songid, score_sorted.loc[i, 'Score'])
 
-        song_ids = [(song_id,) for song_id in final_results]
-        detailed_results = get_song_details(song_ids)
+                        if songid in final_results:
+                            myfinal_results.append(songid)
+
+                    final_results = myfinal_results
+                elif not final_results:
+                    return render_template("index.html", error="没有符合条件的结果。")
+
+
+
+        detailed_results = []
+        for song_id in final_results:
+            song_ids = [(song_id,)]
+            detailed_results = detailed_results + get_song_details(song_ids)
+        #print("++++++++++++",detailed_results[0])
 
         print(f"Detailed results: {detailed_results}")
         print(f"Number of detailed results: {len(detailed_results)}")
-
-        return render_template("results.html", search_results=detailed_results, previous_song_ids=list(final_results))
+        search_results_len = len(final_results)
+        return render_template("results.html", search_results=detailed_results, previous_song_ids=list(final_results),search_results_len = search_results_len)
 
     elif request.method == "GET":
         artist = request.args.get('key_artist')
@@ -241,20 +272,23 @@ def search():
 
         song_ids = [(song_id,) for song_id in results_sets]
         detailed_results = get_song_details(song_ids)
-
-        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography, previous_song_ids=list(results_sets))
+        search_results_len = len(results_sets)
+        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography, previous_song_ids=list(results_sets),search_results_len = search_results_len)
 
 def all_field_search_results(keyword):
     word_results_1 = []
     word_results_2 = []
+    tfidf_scores = []
+    similar_scores_and_highlights = []
     for keyword_01 in keyword.split():
-        print("___________________", len(keyword_01))
+        #print("___________________", len(keyword_01))
         if len(keyword_01) <= 4:
-            for result in model.Jieba_query.show_results([keyword_01], inverted_index):
+            (result1,tfidf_scores) = model.Jieba_query.show_results([keyword_01], inverted_index)
+            for result in result1:
                 word_results_1.append(result[0])
                 # print("___________", result[0])
         else:
-            (similar_results, lyrics_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
+            (similar_results, similar_scores_and_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
             for result in similar_results:
                 word_results_2.append(result[0])
                 # print("_____", result[0])
@@ -268,7 +302,7 @@ def all_field_search_results(keyword):
     all_results = word_results | artist_results | song_results | album_results | version_results
     print(f"All field search results for '{keyword}': {all_results}")
 
-    return all_results
+    return all_results,tfidf_scores,similar_scores_and_highlights
 
 @app.route("/song_detail/<song_id>")
 def song_detail(song_id):

@@ -99,10 +99,12 @@ def show_results(query_terms, inverted_index):
     # 执行搜索并排序
     results = search_and_rank_documents(query_terms, inverted_index, 1331)
     search_results = []
+    tfidf_scores = []
     # 迭代结果并以元组形式添加到列表中
     for song_id, score in results:
         if score:  # 确保score有效，避免添加无效数据
             search_results.append((song_id,))  # 注意这里变成了单元素元组
-    return search_results
+            tfidf_scores.append([song_id,score])
+    return search_results,tfidf_scores
 
     # 基于TF-IDF值排序和返回结果（在这个例子中，我们只有一个文档，但如果有多个，你可以根据TF-IDF值进行排序）
