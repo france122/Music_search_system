@@ -1,10 +1,18 @@
 import csv
 import jieba
 from collections import defaultdict
+import sys
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 这里保险的就是直接先把绝对路径加入到搜索路径
+sys.path.insert(0, os.path.join(BASE_DIR))
+sys.path.insert(0, os.path.join(BASE_DIR, 'data'))  # 把data所在的绝对路径加入到了搜索路径，这样也可以直接访问dataset.csv文件了
 
+# 这句代码进行切换目录
+os.chdir(BASE_DIR)   # 把目录切换到当前项目，这句话是关键
+#print(os.getcwd())
 # 读取CSV文件并建立倒排索引
-with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
-        open('data_files/index.csv', 'w', newline='', encoding='utf-8') as csvfile_out:
+with open('../data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
+        open('../data_files/index.csv', 'w', newline='', encoding='gbk') as csvfile_out:
     # 定义CSV文件读取器和写入器
     reader = csv.reader(csvfile_in)
     writer = csv.writer(csvfile_out)
@@ -14,7 +22,7 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
 
     # 倒排索引字典，键是词，值是该词出现的歌曲编号及其频率
     inverted_index = defaultdict(lambda: defaultdict(int))
-
+    cut_results = []
     # 遍历CSV文件的每一行
     for row in reader:
         song_id = row[0]  # 歌曲编号
@@ -22,14 +30,15 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
 
         # 使用jieba进行分词
         seg_list = jieba.lcut_for_search(lyrics)
-
+        cut_results.append([seg_list,song_id])
         # 遍历分词结果，建立倒排索引并计数
         for word in seg_list:
             if len(word) > 1:  # 过滤掉单个字符的词（可选）
                 inverted_index[word][song_id] += 1
-'''
-                # 将倒排索引写入新的CSV文件
-    # 写入标题行
+def cut_for_similarmeasurement():
+    return cut_results
+'''               # 将倒排索引写入新的CSV文件
+                # 写入标题行
     writer.writerow(['Word', 'Song IDs and Frequencies'])
 
     # 遍历倒排索引并写入CSV文件
@@ -41,11 +50,15 @@ with open('data_files/music.csv', 'r', encoding='gbk') as csvfile_in, \
 
 print("Inverted index has been saved to index.csv")
 '''
+
+
 from collections import defaultdict
 import math
 # 假设的文档总数
 N = 1298  # 有1298个文档
 # 计算IDF
+
+
 def calculate_idf(inverted_index, N):
     idf = {}
     for term, postings in inverted_index.items():

@@ -10,7 +10,7 @@ import os
 from musicdata import db, cursor
 from model.whoosh_test import whoosh_search
 from model.Jieba_query import inverted_index
-
+from model.search_similarmeasurement import show_results_similarity
 app = Flask(__name__)
 app.secret_key = '1234'
 
@@ -55,10 +55,16 @@ def register():
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
-    key_word = request.args.get('key_word')  # 从GET请求中获取key_word
-    key_word = key_word.split()
+    key_words = request.args.get('key_word')  # 从GET请求中获取key_word
+    key_word = key_words.split()
     search_results1, search_results2, time1, time2 = lyrics_search(key_word)
-    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2)
+
+    start_time3 = time.time()
+    (search_results3,results_detail_similarity) = model.search_similarmeasurement.show_results_similarity(key_words)
+    end_time3 = time.time()
+    time3 = round(end_time3 - start_time3, 3)
+    detailed_results3 = get_song_details(search_results3)
+    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2,search_results3=detailed_results3,results_detail_similarity=results_detail_similarity, time1=time1, time2=time2,time3=time3)
 
 def lyrics_search(keywords):
     start_time1 = time.time()
@@ -71,6 +77,7 @@ def lyrics_search(keywords):
     time2 = round(end_time2 - start_time2, 3)
     detailed_results1 = get_song_details(search_results1)
     detailed_results2 = get_song_details(search_results2)
+
     return detailed_results1, detailed_results2, time1, time2
 
 @app.route('/compare')

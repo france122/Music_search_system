@@ -84,8 +84,8 @@ def artistsearch_results(keyartist):
 
     for keyword in keywords:
         results = sql_artistquery(keyword)
-        # if results:
-        #     print(f"Results for '{keyword}': {results}")
+        if results:
+            print(f"Results for '{keyword}': {results}")
         search_result.update(results)  # 对每个关键字进行查询，并更新结果集
 
     # print(f"Final combined results: {search_result}")
