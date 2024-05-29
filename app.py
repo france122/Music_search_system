@@ -76,7 +76,7 @@ def test_search():
     end_time3 = time.time()
     time3 = round(end_time3 - start_time3, 3)
     detailed_results3 = get_song_details(search_results3)
-    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2,search_results3=detailed_results3,results_detail_similarity=results_detail_similarity, time1=time1, time2=time2,time3=time3,search_results1_len=length1,search_results2_len=length2,search_results3_len=len(search_results3))
+    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2,search_results3=detailed_results3,results_detail_similarity=similar_scores_and_highlights, time1=time1, time2=time2,time3=time3,search_results1_len=length1,search_results2_len=length2,search_results3_len=len(search_results3))
 
 def lyrics_search(keywords):
     start_time1 = time.time()
