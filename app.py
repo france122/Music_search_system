@@ -224,6 +224,42 @@ def song_detail(song_id):
         return render_template("songdetail.html", error="找不到该歌曲的详细信息。")
     return render_template("songdetail.html", song_detail=song_detail)
 
+@app.route("/refine", methods=["POST"])
+def refine():
+    if request.method == "POST":
+        print(request.form)  # 打印表单提交的数据
+        refine_query = request.form.get('secondary_search_query')
+        if not refine_query:
+            return render_template("results.html", error="请填写搜索条件。", search_results=session.get('detailed_results', []), artist_biography=session.get('artist_biography'))
+
+        # 获取之前的搜索结果
+        previous_results = session.get('detailed_results', [])
+        if not previous_results:
+            return render_template("results.html", error="没有之前的搜索结果。", search_results=[], artist_biography=session.get('artist_biography'))
+
+        # 提取之前搜索结果中的 SongID
+        previous_song_ids = set(item['SongID'] for item in previous_results)
+
+        # 全字段搜索
+        all_results = all_field_search_results(refine_query)
+        if not all_results:
+            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
+
+        # 取交集
+        refined_song_ids = previous_song_ids & all_results
+
+        if not refined_song_ids:
+            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
+
+        # 获取详细的歌曲信息
+        detailed_results = get_song_details(refined_song_ids)
+
+        # 更新 session 存储的搜索结果
+        session['detailed_results'] = detailed_results
+
+        return render_template("results.html", search_results=detailed_results, artist_biography=session.get('artist_biography'))
+
+
 @app.route('/index1')
 def index1():
     username = session["username"]
