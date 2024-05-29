@@ -115,7 +115,7 @@ def search():
             previous_song_ids = set(previous_song_ids)
             print(f"Previous song IDs: {previous_song_ids}")
 
-            all_results = all_field_search_results(refine_query)
+            (all_results,tfidf_scores,similar_scores)= all_field_search_results(refine_query)
             print(f"All results for refine query '{refine_query}': {all_results}")
 
             if not all_results:
