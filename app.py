@@ -285,7 +285,7 @@ def all_field_search_results(keyword):
     for keyword_01 in keyword.split():
         #print("___________________", len(keyword_01))
         if len(keyword_01) <= 4:
-            seg_list = jieba.lcut_for_search(key_word_01)
+            seg_list = jieba.lcut_for_search(keyword_01)
             (result1,tfidf_scores) = model.Jieba_query.show_results(seg_list, inverted_index)
             for result in result1:
                 word_results_1.append(result[0])
