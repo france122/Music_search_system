@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, session,send_file
 import model.search
+import jieba
 from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
 from model.search import (songsearch_results, emotionsearch_results, artistsearch_results,
@@ -55,9 +56,20 @@ def register():
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
-    key_words = request.args.get('key_word')  # 从GET请求中获取key_word
+    key_words = request.args.get('key_words')  # 从GET请求中获取key_word
     key_word = key_words.split()
-    search_results1, search_results2, time1, time2 = lyrics_search(key_word)
+    search_words=[]
+    for key_word in key_words:
+        seg_list = jieba.lcut_for_search(key_word)
+        search_words.extend(seg_list)
+    search_results1, search_results2, time1, time2 = lyrics_search(search_words)
+    length1,length2=len(search_results1),len(search_results2)
+    if length1>30:
+        search_results1=search_results1[:30]
+        length1=30
+    if length2>30:
+        search_results2=search_results2[:30]
+        length2=30
 
     start_time3 = time.time()
     (search_results3,results_detail_similarity) = model.search_similarmeasurement.show_results_similarity(key_words)
@@ -87,7 +99,7 @@ def compare():
 @app.route("/search", methods=["GET", "POST"])
 def search():
     if request.method == "POST":
-        # 处理表单提交的 POST 请求
+        print(request.form)  # 打印表单提交的数据
         search_params = {}
         artist_biography = None
         major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
@@ -98,7 +110,9 @@ def search():
             if field and request.form.get(field):
                 search_params[field] = request.form.get(field).strip()
                 if field == 'key_artist' and search_params[field] in major_artists:
+                    print(f"Searching for major artist: {search_params[field]}")
                     artist_biography = get_artist_biography(search_params[field])
+                    print(f"Artist biography: {artist_biography}")
 
         arousal = request.form.get('arousal')
         valence = request.form.get('valence')
@@ -142,6 +156,10 @@ def search():
                 version_results = set(versionsearch_results(value))
                 if version_results:  # 只添加非空集合
                     results_sets.append(version_results)
+            elif field == 'key_lyrics':
+                lyrics_results = lyrics_search_results(value)
+                if lyrics_results:  # 只添加非空集合
+                    results_sets.append(set(lyrics_results))
 
         # 取交集
         if results_sets:
@@ -160,7 +178,11 @@ def search():
                 # 如果没有其他检索条件的结果，进行全表情感搜索
                 final_results = emotionsearch_results(arousal, valence)
         else:
-            if not final_results:
+            if 'key_lyrics' in search_params and final_results:
+                # 按歌词结果顺序排序
+                lyrics_results = lyrics_search_results(search_params['key_lyrics'])
+                final_results = [result for result in lyrics_results if result in final_results]
+            elif not final_results:
                 # 如果没有情感参数且没有其他条件的结果，返回空结果
                 return render_template("index.html", error="没有符合条件的结果。")
 
@@ -171,7 +193,7 @@ def search():
         session['detailed_results'] = detailed_results
         session['artist_biography'] = artist_biography
 
-        return redirect(url_for('results'))
+        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
     elif request.method == "GET":
         # 处理点击歌手链接的 GET 请求
@@ -180,6 +202,7 @@ def search():
             return render_template("index.html", error="未指定歌手。")
 
         artist_biography = get_artist_biography(artist)
+        print(f"GET request for artist biography: {artist_biography}")
 
         results_sets = set(artistsearch_results(artist))
 
@@ -189,12 +212,6 @@ def search():
         detailed_results = get_song_details(results_sets)
 
         return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
-
-@app.route('/results')
-def results():
-    detailed_results = session.get('detailed_results', [])
-    artist_biography = session.get('artist_biography', None)
-    return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
 
 def all_field_search_results(keyword):
     # 对各个字段分别进行搜索并转换为集合
@@ -225,6 +242,42 @@ def song_detail(song_id):
     if not song_detail:
         return render_template("songdetail.html", error="找不到该歌曲的详细信息。")
     return render_template("songdetail.html", song_detail=song_detail)
+
+@app.route("/refine", methods=["POST"])
+def refine():
+    if request.method == "POST":
+        print(request.form)  # 打印表单提交的数据
+        refine_query = request.form.get('secondary_search_query')
+        if not refine_query:
+            return render_template("results.html", error="请填写搜索条件。", search_results=session.get('detailed_results', []), artist_biography=session.get('artist_biography'))
+
+        # 获取之前的搜索结果
+        previous_results = session.get('detailed_results', [])
+        if not previous_results:
+            return render_template("results.html", error="没有之前的搜索结果。", search_results=[], artist_biography=session.get('artist_biography'))
+
+        # 提取之前搜索结果中的 SongID
+        previous_song_ids = set(item['SongID'] for item in previous_results)
+
+        # 全字段搜索
+        all_results = all_field_search_results(refine_query)
+        if not all_results:
+            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
+
+        # 取交集
+        refined_song_ids = previous_song_ids & all_results
+
+        if not refined_song_ids:
+            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
+
+        # 获取详细的歌曲信息
+        detailed_results = get_song_details(refined_song_ids)
+
+        # 更新 session 存储的搜索结果
+        session['detailed_results'] = detailed_results
+
+        return render_template("results.html", search_results=detailed_results, artist_biography=session.get('artist_biography'))
+
 
 @app.route('/index1')
 def index1():

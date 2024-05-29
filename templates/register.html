@@ -14,6 +14,14 @@
             margin: 0;
         }
 
+         body {
+    background-image: url("static/image/background.jpg");
+    background-size: cover; /* 拉伸平铺 */
+    background-repeat: no-repeat; /* 防止重复 */
+    background-attachment: fixed; /* 背景固定，不随滚动条移动 */
+    background-position: center; /* 居中显示 */
+}
+
         .login-container {
             width: 400px;
             padding: 40px;
@@ -67,7 +75,7 @@
     </style>
     <title>注册</title>
 </head>
-<body>
+<body >
     <div class="login-container">
     <h2>用户注册</h2>
     <form method="POST">

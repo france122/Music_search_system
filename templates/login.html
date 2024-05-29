@@ -15,6 +15,14 @@
             margin: 0;
         }
 
+        body {
+    background-image: url("static/image/background.jpg");
+    background-size: cover; /* 拉伸平铺 */
+    background-repeat: no-repeat; /* 防止重复 */
+    background-attachment: fixed; /* 背景固定，不随滚动条移动 */
+    background-position: center; /* 居中显示 */
+}
+
         .login-container {
             width: 400px;
             padding: 40px;
@@ -69,7 +77,7 @@
     <title>登录</title>
 </head>
 
-<body>
+<body >
     <div class="login-container">
         <h2 style="color:white">用户登录</h2>
         <!--将登陆信息放到一个form中-->
