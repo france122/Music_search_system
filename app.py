@@ -56,8 +56,8 @@ def register():
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
-    key_words = request.args.get('key_words')  # 从GET请求中获取key_word
-    key_word = key_words.split()
+    raw_key_words = request.args.get('key_words')  # 从GET请求中获取key_word
+    key_words = raw_key_words.split()
     search_words=[]
     for key_word in key_words:
         seg_list = jieba.lcut_for_search(key_word)
@@ -72,11 +72,11 @@ def test_search():
         length2=30
 
     start_time3 = time.time()
-    (search_results3,results_detail_similarity) = model.search_similarmeasurement.show_results_similarity(key_words)
+    (search_results3,results_detail_similarity) = model.search_similarmeasurement.show_results_similarity(raw_key_words)
     end_time3 = time.time()
     time3 = round(end_time3 - start_time3, 3)
     detailed_results3 = get_song_details(search_results3)
-    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2,search_results3=detailed_results3,results_detail_similarity=results_detail_similarity, time1=time1, time2=time2,time3=time3)
+    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2,search_results3=detailed_results3,results_detail_similarity=results_detail_similarity, time1=time1, time2=time2,time3=time3,search_results1_len=length1,search_results2_len=length2,search_results3_len=len(search_results3))
 
 def lyrics_search(keywords):
     start_time1 = time.time()
