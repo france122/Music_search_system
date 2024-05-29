@@ -34,7 +34,7 @@ def user_login():
             return render_template('login.html', message=login_message)
         else:
             login_message = "温馨提示：不存在该用户，请先注册"
-            return render_template('login.html', message=login_message)
+            return render_template('register.html', message=login_message)
     return render_template('login.html')
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -47,18 +47,18 @@ def register():
             return render_template('register.html', message=login_message)
         elif exist_user(username):
             login_message = "温馨提示：用户已存在，请直接登录"
-            return render_template('register.html', message=login_message)
+            return render_template('login.html', message=login_message)
         else:
             add_user(username, password)
             return redirect(url_for('index1'))
-    return render_template('register.html')
+    return render_template('login.html')
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
     key_word = request.args.get('key_word')  # 从GET请求中获取key_word
     key_word = key_word.split()
     search_results1, search_results2, time1, time2 = lyrics_search(key_word)
-    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2)
+    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2,search_results1_len=len(search_results1),search_results2_len=len(search_results2))
 
 def lyrics_search(keywords):
     start_time1 = time.time()
@@ -70,7 +70,9 @@ def lyrics_search(keywords):
     end_time2 = time.time()
     time2 = round(end_time2 - start_time2, 3)
     detailed_results1 = get_song_details(search_results1)
+
     detailed_results2 = get_song_details(search_results2)
+
     return detailed_results1, detailed_results2, time1, time2
 
 @app.route('/compare')
