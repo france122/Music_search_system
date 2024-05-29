@@ -100,11 +100,44 @@ def compare():
 def search():
     if request.method == "POST":
         print(request.form)  # 打印表单提交的数据
+
+        refine_query = request.form.get('secondary_search_query')
+        previous_song_ids = request.form.getlist('previous_song_ids')  # 获取之前的搜索结果
+
+        if refine_query:
+            # 二次检索逻辑
+            print(f"Refine query: {refine_query}")
+
+            if not previous_song_ids:
+                return render_template("results.html", error="没有之前的搜索结果。", search_results=[])
+
+            previous_song_ids = set(previous_song_ids)
+            print(f"Previous song IDs: {previous_song_ids}")
+
+            all_results = all_field_search_results(refine_query)
+            print(f"All results for refine query '{refine_query}': {all_results}")
+
+            if not all_results:
+                return render_template("results.html", error="没有符合条件的结果。", search_results=[])
+
+            refined_song_ids = previous_song_ids & set(all_results)
+            print(f"Refined song IDs after intersection: {refined_song_ids}")
+
+            if not refined_song_ids:
+                return render_template("results.html", error="没有符合条件的结果。", search_results=[])
+
+            song_ids = [(song_id,) for song_id in refined_song_ids]
+            print(f"Song IDs for get_song_details: {song_ids}")
+            detailed_results = get_song_details(song_ids)
+            print(f"Detailed results: {detailed_results}")
+
+            return render_template("results.html", search_results=detailed_results, previous_song_ids=list(refined_song_ids))
+
+        # 初次检索逻辑
         search_params = {}
         artist_biography = None
         major_artists = ['苏打绿', '凤凰传奇', '周杰伦', '李宇春', '张学友', '五月天']
 
-        # 获取搜索参数
         fields = request.form.getlist('fields[]')
         for field in fields:
             if field and request.form.get(field):
@@ -122,46 +155,43 @@ def search():
 
         results_sets = []
 
-        # 全字段搜索
         if 'key_all' in search_params and search_params['key_all']:
             all_results = all_field_search_results(search_params['key_all'])
             if all_results:
-                results_sets.append(all_results)
+                results_sets.append(set(all_results))
 
-        # 处理各个字段的搜索
         for field, value in search_params.items():
             if field == 'key_word':
                 word_results_sets = []
                 for keyword in value.split():
-                    if keyword.strip():  # 只处理非空关键词
+                    if keyword.strip():
                         search_results = model.Jieba_query.show_results(keyword.split(), inverted_index)
-                        word_results_sets.append(set(search_results))
+                        word_results_sets.append(set(result[0] for result in search_results))
                 if word_results_sets:
                     combined_word_results = set.union(*word_results_sets)
-                    if combined_word_results:  # 只添加非空集合
+                    if combined_word_results:
                         results_sets.append(combined_word_results)
             elif field == 'key_artist':
-                artist_results = set(artistsearch_results(value))
-                if artist_results:  # 只添加非空集合
+                artist_results = set(result[0] for result in artistsearch_results(value))
+                if artist_results:
                     results_sets.append(artist_results)
             elif field == 'key_song':
-                song_results = set(songsearch_results(value))
-                if song_results:  # 只添加非空集合
+                song_results = set(result[0] for result in songsearch_results(value))
+                if song_results:
                     results_sets.append(song_results)
             elif field == 'key_album':
-                album_results = set(albumsearch_results(value))
-                if album_results:  # 只添加非空集合
+                album_results = set(result[0] for result in albumsearch_results(value))
+                if album_results:
                     results_sets.append(album_results)
             elif field == 'key_version':
-                version_results = set(versionsearch_results(value))
-                if version_results:  # 只添加非空集合
+                version_results = set(result[0] for result in versionsearch_results(value))
+                if version_results:
                     results_sets.append(version_results)
             elif field == 'key_lyrics':
                 lyrics_results = lyrics_search_results(value)
-                if lyrics_results:  # 只添加非空集合
-                    results_sets.append(set(lyrics_results))
+                if lyrics_results:
+                    results_sets.append(set(result[0] for result in lyrics_results))
 
-        # 取交集
         if results_sets:
             final_results = results_sets[0]
             for result_set in results_sets[1:]:
@@ -169,34 +199,30 @@ def search():
         else:
             final_results = set()
 
-        # 添加情感搜索逻辑
+        print(f"Final search results: {final_results}")
+        print(f"Number of final search results: {len(final_results)}")
+
         if arousal and valence:
             if final_results:
-                # 如果有其他检索条件的结果，对这些结果进行情感排序
                 final_results = emotionsearch_results(arousal, valence, list(final_results))
             else:
-                # 如果没有其他检索条件的结果，进行全表情感搜索
                 final_results = emotionsearch_results(arousal, valence)
         else:
             if 'key_lyrics' in search_params and final_results:
-                # 按歌词结果顺序排序
                 lyrics_results = lyrics_search_results(search_params['key_lyrics'])
-                final_results = [result for result in lyrics_results if result in final_results]
+                final_results = [result[0] for result in lyrics_results if result[0] in final_results]
             elif not final_results:
-                # 如果没有情感参数且没有其他条件的结果，返回空结果
                 return render_template("index.html", error="没有符合条件的结果。")
 
-        # 从后端获取详细的歌曲信息
-        detailed_results = get_song_details(final_results)
+        song_ids = [(song_id,) for song_id in final_results]
+        detailed_results = get_song_details(song_ids)
 
-        # 使用 session 存储搜索结果
-        session['detailed_results'] = detailed_results
-        session['artist_biography'] = artist_biography
+        print(f"Detailed results: {detailed_results}")
+        print(f"Number of detailed results: {len(detailed_results)}")
 
-        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
+        return render_template("results.html", search_results=detailed_results, previous_song_ids=list(final_results))
 
     elif request.method == "GET":
-        # 处理点击歌手链接的 GET 请求
         artist = request.args.get('key_artist')
         if not artist:
             return render_template("index.html", error="未指定歌手。")
@@ -204,35 +230,25 @@ def search():
         artist_biography = get_artist_biography(artist)
         print(f"GET request for artist biography: {artist_biography}")
 
-        results_sets = set(artistsearch_results(artist))
+        results_sets = set(result[0] for result in artistsearch_results(artist))
 
         if not results_sets:
             return render_template("index.html", error="没有符合条件的结果。")
 
-        detailed_results = get_song_details(results_sets)
+        song_ids = [(song_id,) for song_id in results_sets]
+        detailed_results = get_song_details(song_ids)
 
-        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography)
+        return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography, previous_song_ids=list(results_sets))
 
 def all_field_search_results(keyword):
-    # 对各个字段分别进行搜索并转换为集合
-    word_results = set(model.Jieba_query.show_results(keyword.split(), inverted_index))
-    artist_results = set(artistsearch_results(keyword))
-    song_results = set(songsearch_results(keyword))
-    album_results = set(albumsearch_results(keyword))
-    version_results = set(versionsearch_results(keyword))
+    word_results = set(result[0] for result in model.Jieba_query.show_results(keyword.split(), inverted_index))
+    artist_results = set(result[0] for result in artistsearch_results(keyword))
+    song_results = set(result[0] for result in songsearch_results(keyword))
+    album_results = set(result[0] for result in albumsearch_results(keyword))
+    version_results = set(result[0] for result in versionsearch_results(keyword))
 
-    # 确保每个结果集是单列，并去重
-    def extract_single_column(results):
-        return set(item[0] for item in results if isinstance(item, (list, tuple)) and len(item) > 0)
-
-    word_results = extract_single_column(word_results)
-    artist_results = extract_single_column(artist_results)
-    song_results = extract_single_column(song_results)
-    album_results = extract_single_column(album_results)
-    version_results = extract_single_column(version_results)
-
-    # 将结果取并集并去重
     all_results = word_results | artist_results | song_results | album_results | version_results
+    print(f"All field search results for '{keyword}': {all_results}")
 
     return all_results
 
@@ -242,41 +258,6 @@ def song_detail(song_id):
     if not song_detail:
         return render_template("songdetail.html", error="找不到该歌曲的详细信息。")
     return render_template("songdetail.html", song_detail=song_detail)
-
-@app.route("/refine", methods=["POST"])
-def refine():
-    if request.method == "POST":
-        print(request.form)  # 打印表单提交的数据
-        refine_query = request.form.get('secondary_search_query')
-        if not refine_query:
-            return render_template("results.html", error="请填写搜索条件。", search_results=session.get('detailed_results', []), artist_biography=session.get('artist_biography'))
-
-        # 获取之前的搜索结果
-        previous_results = session.get('detailed_results', [])
-        if not previous_results:
-            return render_template("results.html", error="没有之前的搜索结果。", search_results=[], artist_biography=session.get('artist_biography'))
-
-        # 提取之前搜索结果中的 SongID
-        previous_song_ids = set(item['SongID'] for item in previous_results)
-
-        # 全字段搜索
-        all_results = all_field_search_results(refine_query)
-        if not all_results:
-            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
-
-        # 取交集
-        refined_song_ids = previous_song_ids & all_results
-
-        if not refined_song_ids:
-            return render_template("results.html", error="没有符合条件的结果。", search_results=previous_results, artist_biography=session.get('artist_biography'))
-
-        # 获取详细的歌曲信息
-        detailed_results = get_song_details(refined_song_ids)
-
-        # 更新 session 存储的搜索结果
-        session['detailed_results'] = detailed_results
-
-        return render_template("results.html", search_results=detailed_results, artist_biography=session.get('artist_biography'))
 
 
 @app.route('/index1')
