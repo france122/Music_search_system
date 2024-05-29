@@ -208,10 +208,10 @@
             margin: 0 10px;
         }
 
-         .explain {
+        .explain {
             text-align: left;
             margin-left: 100px;
-            color:orange;
+            color: orange;
         }
 
         .singer {
@@ -245,19 +245,26 @@
         }
 
         .canvas-container {
-            width: 200px;
-            height: 200px;
-            position: relative;
+            display: flex;
+            align-items: flex-start;
             position: relative;
             right: 8%;
-            border: 1px solid #000;
         }
 
         #arousal-valence-canvas {
-            width: 100%;
-            height: 100%;
+            width: 250px;
+            height: 250px;
             background-image: url("../static/image/va.jpg");
             background-size: cover;
+        }
+
+        .tooltip {
+            margin-left: 20px;
+            border: 1px solid #ccc;
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
         }
     </style>
 </head>
@@ -305,9 +312,14 @@
             </form>
         </div>
 
-        <div class="canvas-container">
+        <div class="canvas-container" id="canvas-container">
             <canvas id="arousal-valence-canvas" width="300" height="300"></canvas>
-            <div></div>
+            <div class="tooltip" id="tooltip">
+                <p><strong>情感检索</strong></p>
+                <p>可在坐标系内选择您想要查询的歌曲情感</p>
+                <p>纵轴表示情感的能量水平，从低唤醒到高唤醒</p>
+                <p>横轴表示情感的愉快程度，从负效价到正效价</p>
+            </div>
         </div>
     </div>
 
@@ -438,6 +450,16 @@
 
         canvas.addEventListener('mouseup', function () {
             dragging = false;
+        });
+
+        canvas.addEventListener('mouseover', function () {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'block';
+        });
+
+        canvas.addEventListener('mouseout', function () {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'none';
         });
 
         function updateArousalValence(e) {
