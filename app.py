@@ -165,12 +165,17 @@ def search():
                 word_results_sets = []
                 for keyword in value.split():
                     if keyword.strip():
-                        search_results = model.Jieba_query.show_results(keyword.split(), inverted_index)
-                        word_results_sets.append(set(result[0] for result in search_results))
+                        if len(keyword) <= 4:
+                            search_results = model.Jieba_query.show_results([keyword], inverted_index)
+                            word_results_sets.append(set(result[0] for result in search_results))
+                        else:
+                            (search_results,lyrics_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
+                            word_results_sets.append(set(result[0] for result in search_results))
                 if word_results_sets:
                     combined_word_results = set.union(*word_results_sets)
                     if combined_word_results:
                         results_sets.append(combined_word_results)
+
             elif field == 'key_artist':
                 artist_results = set(result[0] for result in artistsearch_results(value))
                 if artist_results:
@@ -191,7 +196,6 @@ def search():
                 lyrics_results = lyrics_search_results(value)
                 if lyrics_results:
                     results_sets.append(set(result[0] for result in lyrics_results))
-
         if results_sets:
             final_results = results_sets[0]
             for result_set in results_sets[1:]:
@@ -241,7 +245,21 @@ def search():
         return render_template("results.html", search_results=detailed_results, artist_biography=artist_biography, previous_song_ids=list(results_sets))
 
 def all_field_search_results(keyword):
-    word_results = set(result[0] for result in model.Jieba_query.show_results(keyword.split(), inverted_index))
+    word_results_1 = []
+    word_results_2 = []
+    for keyword_01 in keyword.split():
+        print("___________________", len(keyword_01))
+        if len(keyword_01) <= 4:
+            for result in model.Jieba_query.show_results([keyword_01], inverted_index):
+                word_results_1.append(result[0])
+                # print("___________", result[0])
+        else:
+            (similar_results, lyrics_highlights) = model.search_similarmeasurement.show_results_similarity(keyword)
+            for result in similar_results:
+                word_results_2.append(result[0])
+                # print("_____", result[0])
+    word_results = set(word_results_1) | set(word_results_2)
+    #word_results = set(result[0] for result in model.Jieba_query.show_results(keyword.split(), inverted_index))
     artist_results = set(result[0] for result in artistsearch_results(keyword))
     song_results = set(result[0] for result in songsearch_results(keyword))
     album_results = set(result[0] for result in albumsearch_results(keyword))
@@ -329,4 +347,5 @@ def get_audio(song_id):
         return "Audio file not found", 404
 
 if __name__ == '__main__':
+
     app.run(debug=True, host='0.0.0.0', port=6688)
