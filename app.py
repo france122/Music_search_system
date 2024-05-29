@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, session,send_file
 import model.search
+import jieba
 from model.check_login import is_existed, exist_user, is_null
 from model.check_regist import add_user
 from model.search import (songsearch_results, emotionsearch_results, artistsearch_results,
@@ -55,10 +56,21 @@ def register():
 
 @app.route('/test_search', methods=['GET', 'POST'])
 def test_search():
-    key_word = request.args.get('key_word')  # 从GET请求中获取key_word
-    key_word = key_word.split()
-    search_results1, search_results2, time1, time2 = lyrics_search(key_word)
-    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2)
+    key_words = request.args.get('key_words')  # 从GET请求中获取key_word
+    key_words = key_words.split()
+    search_words=[]
+    for key_word in key_words:
+        seg_list = jieba.lcut_for_search(key_word)
+        search_words.extend(seg_list)
+    search_results1, search_results2, time1, time2 = lyrics_search(search_words)
+    length1,length2=len(search_results1),len(search_results2)
+    if length1>30:
+        search_results1=search_results1[:30]
+        length1=30
+    if length2>30:
+        search_results2=search_results2[:30]
+        length2=30
+    return render_template('compare.html', search_results1=search_results1, search_results2=search_results2, time1=time1, time2=time2,search_results1_len=length1,search_results2_len=length2)
 
 def lyrics_search(keywords):
     start_time1 = time.time()
